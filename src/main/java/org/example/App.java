@@ -14,6 +14,8 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
+        UDPListener recep = new UDPListener();
+        recep.start();
 
         System.out.println( "Hello World!" );
         DatagramSocket dgramSocket = new DatagramSocket();
@@ -24,8 +26,7 @@ public class App
         dgramSocket.send(outPacket);
 
 
-        UDPListener recep = new UDPListener();
-        recep.run();
+
 
     }
 }
