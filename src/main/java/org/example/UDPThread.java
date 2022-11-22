@@ -1,31 +1,40 @@
 package org.example;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
-public class UDPListener extends Thread{
-    private DatagramSocket socket;
-    private byte[] buf = new byte[256];
+public class UDPThread extends Thread{
+    private DatagramSocket socket; //Création du socket de réception
+    private byte[] buf = new byte[256]; //Buffer permettant de récuperer le payload de l'UDP
+    private boolean close = false; //Permet de faire une boucle infinie
 
-    public UDPListener() throws SocketException {
+    private List<String> dataList; //List qui stockera l'ensemble des connexion/deconnexion/changement de pseudo
 
-        socket = new DatagramSocket(4445);
+    public UDPThread() throws IOException {
+
+
+        socket = new DatagramSocket(4445); //Création du socket sur le port 4445
+        List<String> dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
+
 
     }
 
     public void run(){
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
-        try {
 
-            socket.receive(packet);
-            InetAddress address = packet.getAddress();
-            int port = packet.getPort();
-            System.out.println(address+ " " + port);
-            String received = new String(packet.getData(), 0, packet.getLength());
-            System.out.println(received);
+        try {
+            while(!close) {
+
+                DatagramPacket packet = new DatagramPacket(buf, buf.length); //Création d'un paquet vide
+                socket.receive(packet); //En attente de récuperer un paquet, bloquant
+                InetAddress address = packet.getAddress(); //Recuperation de l'addresse IP source du paquet UDP
+                System.out.println(address);
+                String received = new String(packet.getData(), 0, packet.getLength()); //Convertission des datas en string
+                System.out.println(received);
+                dataList.add(received); //Ajout du payload UDP dans la list
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

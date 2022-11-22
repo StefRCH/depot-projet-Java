@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Scanner;  // Import the Scanner class
 
 /**
@@ -13,26 +12,15 @@ import java.util.Scanner;  // Import the Scanner class
  */
 public class App 
 {
+    private UserManager userManager;
 
     public static void main( String[] args ) throws IOException {
-        UDPListener recep = new UDPListener();
-        recep.start();
 
-        Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-        System.out.println("Enter pseudo : ");
+        UserManager userManager = new UserManager(); //Création de l'User Manager au lancement de l'application
 
-        String pseudo = myObj.nextLine();  // Read user input
+    }
 
-        System.out.println( "Hello World!" );
-        DatagramSocket dgramSocket = new DatagramSocket();
-        String message = "connexion " +pseudo;
-        InetAddress broadcast = InetAddress.getByName("10.1.5.224");
-        int port = 4445;
-        DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(),broadcast, port);
-        dgramSocket.send(outPacket);
-
-
-
-
+    public UserManager getUserManager() {
+        return userManager;
     }
 }
