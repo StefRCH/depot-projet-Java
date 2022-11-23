@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class UDPThread extends Thread{
+public class UDPThread extends Thread {
     private DatagramSocket socket; //Création du socket de réception
     private byte[] buf = new byte[256]; //Buffer permettant de récuperer le payload de l'UDP
     private boolean close = false; //Permet de faire une boucle infinie
@@ -17,7 +17,7 @@ public class UDPThread extends Thread{
 
 
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
-        List<String> dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
+        this.dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
 
 
     }
@@ -33,12 +33,23 @@ public class UDPThread extends Thread{
                 System.out.println(address);
                 String received = new String(packet.getData(), 0, packet.getLength()); //Convertission des datas en string
                 System.out.println(received);
-                dataList.add(received); //Ajout du payload UDP dans la list
+                this.dataList.add(received); //Ajout du payload UDP dans la list
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getUdpData()
+    {
+        return this.dataList; //On renvoi la liste avec les données
+
+    }
+
+    public void clearData()
+    {
+        this.dataList.clear(); //Remise à 0 des données après les avoir récupérée
     }
 
 }

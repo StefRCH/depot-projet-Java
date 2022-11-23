@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserManager {
@@ -21,7 +22,7 @@ public class UserManager {
 
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
         String message = "connexion " +pseudo; //Création du payload du paquet UDP
-        InetAddress broadcast = InetAddress.getByName("10.1.5.224"); //Adresse destination !!Doit etre un broadcast !!
+        InetAddress broadcast = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
         int port = 4445; //Port de destination du broadcast
         DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(),broadcast, port); //Création du datagramme UDP
         dgramSocket.send(outPacket); //Envoi de la notification de connexion
@@ -36,5 +37,14 @@ public class UserManager {
 
     public UDPThread getUdpThread() {
         return udpThread;
+    }
+
+    public void update()
+    {
+        List<String> newData = this.udpThread.getUdpData(); //Récupération des data du thread UDP
+        this.udpThread.clearData(); //Remise à 0 de la liste.
+
+
+
     }
 }
