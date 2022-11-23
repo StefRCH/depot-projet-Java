@@ -17,23 +17,26 @@ public class UDPThread extends Thread {
 
 
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
-        this.dataList = new ArrayList<String>(); //Création de la list pour receptionner les datas
+        this.dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
 
 
     }
 
-    public void run() {
+    public void run(){
 
         try {
-            while (!close) {
+            while(!close) {
 
                 DatagramPacket packet = new DatagramPacket(buf, buf.length); //Création d'un paquet vide
-                socket.receive(packet); //En attente de récuperer un paquet (bloquant)
-                InetAddress address = packet.getAddress(); //Recuperation de l'adresse IP source du paquet UDP
+                socket.receive(packet); //En attente de récuperer un paquet, bloquant
+                InetAddress address = packet.getAddress(); //Recuperation de l'addresse IP source du paquet UDP
                 System.out.println(address);
                 String received = new String(packet.getData(), 0, packet.getLength()); //Convertission des datas en string
                 System.out.println(received);
+                received += address.toString();
+                System.out.println(received);
                 this.dataList.add(received); //Ajout du payload UDP dans la list
+                System.out.println(this.dataList.get(0));
             }
 
         } catch (IOException e) {
@@ -41,15 +44,15 @@ public class UDPThread extends Thread {
         }
     }
 
-    public List<String> getUdpData() {
-        return this.dataList; //On renvoie la liste avec les données
+    public List<String> getUdpData()
+    {
+        return this.dataList; //On renvoi la liste avec les données
 
     }
 
-    public void clearData() {
+    public void clearData()
+    {
         this.dataList.clear(); //Remise à 0 des données après les avoir récupérée
     }
 
 }
-
-

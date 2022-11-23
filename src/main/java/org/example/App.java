@@ -5,22 +5,29 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;  // Import the Scanner class
+import java.util.Timer;
 
 /**
  * Hello world!
  *
  */
-public class App 
+public class App
 {
-    private UserManager userManager;
 
-    public static void main( String[] args ) throws IOException {
+
+    public static void main( String[] args ) throws IOException, InterruptedException {
 
         UserManager userManager = new UserManager(); //Création de l'User Manager au lancement de l'application
 
+
+        while(true)
+        {
+            userManager.update();
+        }
     }
 
-    public UserManager getUserManager() {
-        return userManager;
-    }
+
+
+
 }
+
