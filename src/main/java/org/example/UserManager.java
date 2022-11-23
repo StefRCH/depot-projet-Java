@@ -21,7 +21,7 @@ public class UserManager {
         String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
 
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
-        String message = "connexion " +pseudo; //Création du payload du paquet UDP
+        String message = "c" +pseudo; //Création du payload du paquet UDP
         InetAddress broadcast = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
         int port = 4445; //Port de destination du broadcast
         DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(),broadcast, port); //Création du datagramme UDP

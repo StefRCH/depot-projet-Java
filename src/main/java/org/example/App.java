@@ -17,7 +17,6 @@ public class App
     public static void main( String[] args ) throws IOException {
 
         UserManager userManager = new UserManager(); //Création de l'User Manager au lancement de l'application
-
     }
 
     public UserManager getUserManager() {

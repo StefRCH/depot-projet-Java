@@ -17,7 +17,7 @@ public class UDPThread extends Thread {
 
 
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
-        this.dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
+        this.dataList = new ArrayList<>(); //Création de la list pour receptionner les datas
 
 
     }
@@ -31,7 +31,8 @@ public class UDPThread extends Thread {
                 socket.receive(packet); //En attente de récuperer un paquet, bloquant
                 InetAddress address = packet.getAddress(); //Recuperation de l'addresse IP source du paquet UDP
                 System.out.println(address);
-                String received = new String(packet.getData(), 0, packet.getLength()); //Convertission des datas en string
+                String received = new String(packet.getData(), 0, packet.getLength()); //Conversion des datas en string
+
                 System.out.println(received);
                 this.dataList.add(received); //Ajout du payload UDP dans la list
             }
