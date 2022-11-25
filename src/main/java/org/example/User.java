@@ -12,11 +12,11 @@ public class User {
     }
 
     public String getPseudo() {
-        return pseudo;
+        return this.pseudo;
     }
 
     public InetAddress getIpAddress() {
-        return ipAddress;
+        return this.ipAddress;
     }
 
     /*public String toString(int x){
