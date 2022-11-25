@@ -17,13 +17,10 @@ public class App
 
     public static void main( String[] args ) throws IOException, InterruptedException {
 
-        UserManager userManager = new UserManager(); //Création de l'User Manager au lancement de l'application
+        UDPThread udpThread = new UDPThread(); //Création de l'User Manager au lancement de l'application
+        udpThread.start();
 
 
-        while(true)
-        {
-            userManager.update();
-        }
     }
 
 

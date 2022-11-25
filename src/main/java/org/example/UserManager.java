@@ -13,16 +13,14 @@ public class UserManager {
 
     private ArrayList<User> users = new ArrayList<>();
 
-    private UDPThread udpThread;
     public UserManager () throws IOException {
-        this.udpThread = new UDPThread(); //Création du thread UDP qui permettra de recevoir les différentes notifs UDP
 
         //Début notifications broadcast pour la connection
         Scanner myObj = new Scanner(System.in);  // Create a Scanner object
         System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
         String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
-
+        System.out.println("hello");
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
         String message = "c/" +pseudo; //Création du payload du paquet UDP
         InetAddress broadcast = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
@@ -33,17 +31,11 @@ public class UserManager {
         //Fin notifications broadcast pour la connection
 
 
-
-        udpThread.start(); //Démarrage du thread UDP pour la reception des notifs UDP
     }
 
-    public UDPThread getUdpThread() {
-        return udpThread;
-    }
 
-    public void update() {
+    public void update(List<String> newData) {
 
-        List<String> newData = this.udpThread.getUdpData(); //Récupération des data du thread UDP
         //this.udpThread.clearData(); //Remise à 0 de la liste.
         for(int i = 0; i < newData.size() ; i++)
         {
@@ -60,6 +52,8 @@ public class UserManager {
 
 
         }
+
+
 
     }
 

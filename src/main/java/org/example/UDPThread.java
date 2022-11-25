@@ -13,9 +13,11 @@ public class UDPThread extends Thread {
 
     private List<String> dataList; //List qui stockera l'ensemble des connexion/deconnexion/changement de pseudo
 
+    private UserManager userManager;
+
     public UDPThread() throws IOException {
 
-
+        UserManager userManager = new UserManager();
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
         this.dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
 
@@ -37,6 +39,7 @@ public class UDPThread extends Thread {
                 System.out.println(received);
                 this.dataList.add(received); //Ajout du payload UDP dans la list
                 System.out.println(this.dataList.get(0));
+                this.userManager.update(this.dataList);
             }
 
         } catch (IOException e) {
