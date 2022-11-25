@@ -18,17 +18,16 @@ public class CelsiusConverter implements ActionListener {
     JLabel fahrenheitLabel;
     JLabel vide;
     JButton convertTemp;
+    final static String LOOKANDFEEL = "GTK+";
 
     public CelsiusConverter() {
         //Create and set up the window.
         converterFrame = new JFrame("Interface de test");
         converterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        converterFrame.setSize(new Dimension(200, 200));
+
 
         //Create and set up the panel.
-        converterPanel = new JPanel(new GridLayout(2, 2));
-
-
+        converterPanel = new JPanel(new FlowLayout());
         //Add the widgets.
         addWidgets();
 
@@ -58,9 +57,9 @@ public class CelsiusConverter implements ActionListener {
         //Add the widgets to the container.
         converterPanel.add(fahrenheitLabel);
         converterPanel.add(vide);
-        converterPanel.add(convertTemp);
+
         converterPanel.add(tempCelsius);
-        
+        converterPanel.add(convertTemp);
 
     }
 
@@ -70,6 +69,48 @@ public class CelsiusConverter implements ActionListener {
 
     }
 
+    private static void initLookAndFeel() {
+
+        // Swing allows you to specify which look and feel your program uses--Java,
+        // GTK+, Windows, and so on as shown below.
+        String lookAndFeel = null;
+
+        if (LOOKANDFEEL != null) {
+            if (LOOKANDFEEL.equals("Metal")) {
+                lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+            } else if (LOOKANDFEEL.equals("System")) {
+                lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+            } else if (LOOKANDFEEL.equals("Motif")) {
+                lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+            } else if (LOOKANDFEEL.equals("GTK+")) { //new in 1.4.2
+                lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+            } else {
+                System.err.println("Unexpected value of LOOKANDFEEL specified: "
+                        + LOOKANDFEEL);
+                lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+            }
+
+            try {
+                UIManager.setLookAndFeel(lookAndFeel);
+            } catch (ClassNotFoundException e) {
+                System.err.println("Couldn't find class for specified look and feel:"
+                        + lookAndFeel);
+                System.err.println("Did you include the L&F library in the class path?");
+                System.err.println("Using the default look and feel.");
+            } catch (UnsupportedLookAndFeelException e) {
+                System.err.println("Can't use the specified look and feel ("
+                        + lookAndFeel
+                        + ") on this platform.");
+                System.err.println("Using the default look and feel.");
+            } catch (Exception e) {
+                System.err.println("Couldn't get specified look and feel ("
+                        + lookAndFeel
+                        + "), for some reason.");
+                System.err.println("Using the default look and feel.");
+                e.printStackTrace();
+            }
+        }
+    }
     /**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
@@ -77,9 +118,11 @@ public class CelsiusConverter implements ActionListener {
      */
     private static void createAndShowGUI() {
         //Make sure we have nice window decorations.
+        initLookAndFeel();
         JFrame.setDefaultLookAndFeelDecorated(true);
-
         CelsiusConverter converter = new CelsiusConverter();
+        converter.converterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        converter.converterFrame.setSize(400,200);
     }
 
     public static void main(String[] args) {
