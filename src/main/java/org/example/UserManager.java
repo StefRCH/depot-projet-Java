@@ -1,14 +1,14 @@
 package org.example;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
+import java.util.function.Predicate;
+
+import static org.example.App.sendUDP;
 
 public class UserManager {
 
@@ -17,17 +17,7 @@ public class UserManager {
     public UserManager () throws IOException {
 
         //Début notifications broadcast pour la connection
-        /*Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-        System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
-        String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
-        DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
-        String message = "c/" +pseudo; //Création du payload du paquet UDP
-        InetAddress broadcast = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
-        int port = 4445; //Port de destination du broadcast
-        DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(),broadcast, port); //Création du datagramme UDP
-        dgramSocket.send(outPacket); //Envoi de la notification de connexion
-        dgramSocket.close(); //Fermeture du socket */
         //Fin notifications broadcast pour la connection
 
 
@@ -36,7 +26,7 @@ public class UserManager {
 
     public void update(List<String> dataList) throws UnknownHostException {
 
-        List<String> newData =  dataList; //IL FAUT CLONER LA LISTE ET PAS LA PASSER EN REFERENCE !!!!!!!!
+        List<String> newData =  new ArrayList<String>(dataList);
         //this.udpThread.clearData(); //Remise à 0 de la liste.
         for(int i = 0; i < newData.size() ; i++)
         {
@@ -52,17 +42,25 @@ public class UserManager {
 
             } else if (data[0].equals("d")) { //C'est une déconnexion
                 System.out.println(this.deleteUser(data[1], ipAddress));
-            } else { //C'est unn changement de pseudo
+            } else if (data[0].equals("m")) { //C'est unn changement de pseudo
+                for(User n : this.users) //On verifie que le pseudo n'est pas déjà utilisé
+                    if (n.getPseudo().equals(data[1])){
+                        System.out.println("ERROR ---- The pseudo is already used.");
+                        //Notifier en UDP pseudo deja utilisé
+                    }
+
+                for(User n : this.users) //On verifie que le pseudo n'est pas déjà utilisé
+                    if (n.getIpAddress().equals(data[2])){
+                        n.setPseudo(data[1]);
+                        System.out.println("SUCCESS ---- The pseudo has been changed");
+                    }
 
             }
 
 
 
         }
-        for(User n : users)
-        {
-            System.out.println(n.getPseudo());
-        }
+
 
 
 
@@ -72,7 +70,10 @@ public class UserManager {
     // Méthode permettant d'ajouter un utilisateur à la liste "users" et qui return un message confirmant l'ajout de cet utilisateur
     public String createUser(String pseudo, InetAddress ipAddress) {
 
-
+        for(User n : this.users)
+            if (n.getPseudo().equals(pseudo)){
+                return "ERROR ---- The pseudo is already used.";
+            }
 
         //Conversion de l'addresse IP en InetAddress
         User newUser = new User(pseudo, ipAddress); //Création d'un new user
@@ -91,11 +92,7 @@ public class UserManager {
     // Méthode permettant de supprimer un utilisateur de la liste "users" et return un message confirmant la suppression
     public String deleteUser(String pseudo, InetAddress ipAddress) {
 
-        for(User n : users) //On cherche dans la liste pour retrouver l'user et le supprimer
-        {
-            if(n.getPseudo().equals(pseudo) && n.getIpAddress().equals(ipAddress));
-                users.remove(n);
-        }
+        this.users.removeIf(user -> user.getPseudo().equals(pseudo) &&  user.getIpAddress().equals(ipAddress));
 
         for(User n : this.users)
             if (n.getPseudo().equals(pseudo)){
@@ -103,4 +100,8 @@ public class UserManager {
             }
         return "SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users";
     }
+
+
 }
+
+

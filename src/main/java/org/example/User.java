@@ -19,6 +19,8 @@ public class User {
         return this.ipAddress;
     }
 
+    public void setPseudo(String newPseudo) { this.pseudo = newPseudo; }
+
     /*public String toString(int x){
         if (x == 0){
             return "Client " + this.pseudo + " has successfully logged into the app with @IP = " + this.ipAddress;
