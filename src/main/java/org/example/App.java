@@ -23,6 +23,7 @@ public class App
         UserManager userManager = udpThread.getUserManager();
 
         userManager.sendUDP("c");
+        Input scanner = userManager.getScanner();
         /*System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
         String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
@@ -35,17 +36,19 @@ public class App
         dgramSocket.close(); */
 
         while(true) {
-            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
-            Scanner prompt = new Scanner(System.in);
-            String userPrompt = prompt.nextLine();  //Lecture de l'entrée utilisateur;
-            if(userPrompt.equals("d"))
-            {
-                userManager.sendUDP("d");
-            } else if(userPrompt.equals("m"))
-            {
-                userManager.sendUDP("m");
+            if(userManager.getGo()) {
+                System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
+                String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
+                if (userPrompt.equals("d")) {
+                    userManager.sendUDP("d");
+                } else if (userPrompt.equals("m")) {
+                    userManager.sendUDP("m");
+                } else if (userPrompt.equals("gabu")) {
+                    System.out.println("C'est moi qui l'ai eu");
+                }
+            } else {
+                continue;
             }
-
         }
     }
 

@@ -10,14 +10,17 @@ import java.util.function.Predicate;
 
 public class UserManager {
 
-    public ArrayList<User> users = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
+    private Input scanner;
+    private Boolean go;
 
     public UserManager () throws IOException {
 
         //Début notifications broadcast pour la connection
 
         //Fin notifications broadcast pour la connection
-
+         this.scanner = Input.getInstance();
+         this.go = true;
 
     }
 
@@ -46,8 +49,11 @@ public class UserManager {
                     if (n.getPseudo().equals(data[1])){
                         System.out.println("ERROR ---- The pseudo is already used.");
                         String message =data[1] + data[2];
-                        sendUDP("w");
+                        this.sendUDP("w", data[2]);
+                    } else {
+                        this.sendUDP("g", data[2]);
                     }
+
 
                 for(User n : users) //On verifie que le pseudo n'est pas déjà utilisé
                     if (n.getIpAddress().equals(data[2])){
@@ -57,7 +63,10 @@ public class UserManager {
 
             } else if (data[0].equals("w")) {
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
-                sendUDP("m");
+                this.sendUDP("m");
+            } else if (data[0].equals("g")) {
+                System.out.println("SUCCESS ---- The pseudo is unique");
+                this.go = true;
             }
 
 
@@ -109,13 +118,13 @@ public class UserManager {
         return "SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users";
     }
 
-    public String sendUDP(String type) throws IOException {
-        Scanner myObj = new Scanner(System.in);
+    public String sendUDP(String type, String ... ip) throws IOException {
+        String ipAddress = ip.length > 0 ? ip[0] : null ;
         if(type.equals("c")) {
 
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
-            String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
+            String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
             this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
             DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message = "c/" + pseudo; //Création du payload du paquet UDP
@@ -123,6 +132,7 @@ public class UserManager {
             int port = 4445; //Port de destination du broadcast
             DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(), broadcast, port); //Création du datagramme UDP
             dgramSocket.send(outPacket); //Envoi de la notification de connexion
+            this.go=false;
             dgramSocket.close(); //Fermeture du socket
             return "Connection successful";
         } else if (type.equals("d")) { //Envoi d'un broadcast de deconnexion
@@ -137,32 +147,53 @@ public class UserManager {
             return "logout successful";
         } else if (type.equals("m")) { //Envoi d'un changement de pseudo
             System.out.println("Rentrez votre nouveau pseudo : ");
-            String newPseudo = myObj.nextLine();
+            String newPseudo = scanner.getNextLine();
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "m/" + newPseudo; //Création du payload du paquet UDP
             InetAddress broadcast2 = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
+            this.go=false;
             dgramSocket2.close();
             return "Changing pseudo successful";
         } else if(type.equals("w")) { //Wrong pseudo, on envoi ce paquet si la personne a prit un pseudo deja utilisé.
 
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "w/"; //Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName(ipAddress); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
             dgramSocket2.close();
 
+        } else if(type.equals("g"))
+        {
+            DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
+            String message2 = "g/"; //Création du payload du paquet UDP
+            InetAddress broadcast2 = InetAddress.getByName(ipAddress); //Adresse destination !!Doit etre un broadcast !!
+            int port2 = 4445; //Port de destination du broadcast
+            DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
+            dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
+            dgramSocket2.close();
         }
         return "Fail sending UDP Packet";
     }
 
+
     public ArrayList<User> getUsers()
     {
         return this.users;
+    }
+
+    public Input getScanner()
+    {
+        return this.scanner;
+    }
+
+    public Boolean getGo()
+    {
+        return this.go;
     }
 
 
