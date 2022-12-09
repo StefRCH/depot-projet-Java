@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.util.Scanner;  // Import the Scanner class
 import java.util.Timer;
 
-import static org.example.UserManager.sendUDP;
+
 
 /**
  * Hello world!
@@ -20,8 +20,9 @@ public class App
 
         UDPThread udpThread = new UDPThread(); //Création de l'User Manager au lancement de l'application
         udpThread.start();
+        UserManager userManager = udpThread.getUserManager();
 
-        sendUDP("c");
+        userManager.sendUDP("c");
         /*System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
         String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
@@ -39,10 +40,10 @@ public class App
             String userPrompt = prompt.nextLine();  //Lecture de l'entrée utilisateur;
             if(userPrompt.equals("d"))
             {
-                sendUDP("d");
+                userManager.sendUDP("d");
             } else if(userPrompt.equals("m"))
             {
-                sendUDP("m");
+                userManager.sendUDP("m");
             }
 
         }

@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 public class UserManager {
 
-    public static ArrayList<User> users = new ArrayList<>();
+    public ArrayList<User> users = new ArrayList<>();
 
     public UserManager () throws IOException {
 
@@ -109,13 +109,14 @@ public class UserManager {
         return "SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users";
     }
 
-    public static String sendUDP(String type) throws IOException {
+    public String sendUDP(String type) throws IOException {
         Scanner myObj = new Scanner(System.in);
         if(type.equals("c")) {
 
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
             String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
+            this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
             DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message = "c/" + pseudo; //Création du payload du paquet UDP
             InetAddress broadcast = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
@@ -157,6 +158,11 @@ public class UserManager {
 
         }
         return "Fail sending UDP Packet";
+    }
+
+    public ArrayList<User> getUsers()
+    {
+        return this.users;
     }
 
 

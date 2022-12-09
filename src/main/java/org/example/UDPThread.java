@@ -37,7 +37,7 @@ public class UDPThread extends Thread {
                     for ( InterfaceAddress interfaceAddress : networkInterfaceEnumeration.nextElement().getInterfaceAddresses())
                         if ( interfaceAddress.getAddress().isSiteLocalAddress()) {
                             this.notreIP = InetAddress.getByName(interfaceAddress.getAddress().getHostAddress());
-                            System.out.println(interfaceAddress.getAddress().getHostAddress());
+                            System.out.println(this.notreIP);
 
                         }
 
@@ -53,7 +53,7 @@ public class UDPThread extends Thread {
                 String received = new String(packet.getData(), 0, packet.getLength()); //Convertission des datas en string
                 received += address.toString();
                 //Ce code permet de récuperer notre IP. Le simple getHostAddress ne fonctionne pas sur les PC de l'INSA
-                if(address.equals(this.notreIP))
+                if(address.equals(this.notreIP)) //Permet de verifier que le paquet recu est pas celui que nous avons nous même émit en broadcast
                 {
                     continue;
                 }
@@ -80,6 +80,11 @@ public class UDPThread extends Thread {
     public void clearData()
     {
         this.dataList.clear(); //Remise à 0 des données après les avoir récupérée
+    }
+
+    public UserManager getUserManager()
+    {
+        return  this.userManager;
     }
 
 }
