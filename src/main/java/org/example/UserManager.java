@@ -87,9 +87,11 @@ public class UserManager {
         for(User n : users)
             if (n.getPseudo().equals(pseudo)){
                 String message = pseudo +ipAddress;
-                sendUDP("w");
+                this.sendUDP("w", ipAddress.toString());
                 return "ERROR ---- The pseudo is already used.";
 
+            } else {
+                this.sendUDP("g", ipAddress.toString());
             }
 
         //Conversion de l'addresse IP en InetAddress
@@ -161,7 +163,7 @@ public class UserManager {
 
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "w/"; //Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName(ipAddress); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName(ipAddress.substring(1)); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
@@ -171,7 +173,7 @@ public class UserManager {
         {
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "g/"; //Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName(ipAddress); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName(ipAddress.substring(1)); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
