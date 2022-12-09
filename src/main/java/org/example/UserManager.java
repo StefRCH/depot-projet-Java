@@ -118,7 +118,7 @@ public class UserManager {
             String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
             DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message = "c/" + pseudo; //Création du payload du paquet UDP
-            InetAddress broadcast = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
             int port = 4445; //Port de destination du broadcast
             DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(), broadcast, port); //Création du datagramme UDP
             dgramSocket.send(outPacket); //Envoi de la notification de connexion
@@ -128,7 +128,7 @@ public class UserManager {
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "d/" + users.get(0).getPseudo();
             System.out.println(message2.toString());//Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
@@ -139,7 +139,7 @@ public class UserManager {
             String newPseudo = myObj.nextLine();
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "m/" + newPseudo; //Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
@@ -149,7 +149,7 @@ public class UserManager {
 
             DatagramSocket dgramSocket2 = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
             String message2 = "w/"; //Création du payload du paquet UDP
-            InetAddress broadcast2 = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
+            InetAddress broadcast2 = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
             int port2 = 4445; //Port de destination du broadcast
             DatagramPacket outPacket2 = new DatagramPacket(message2.getBytes(), message2.length(), broadcast2, port2); //Création du datagramme UDP
             dgramSocket2.send(outPacket2); //Envoi de la notification de connexion
