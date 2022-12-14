@@ -1,11 +1,12 @@
-package org.example;
+package network;
+
+import user.UserManager;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Scanner;
 
 public class UDPThread extends Thread {
     private DatagramSocket socket; //Création du socket de réception
@@ -23,7 +24,6 @@ public class UDPThread extends Thread {
         this.userManager = new UserManager();
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
         this.dataList = new ArrayList<String> (); //Création de la list pour receptionner les datas
-
 
     }
 

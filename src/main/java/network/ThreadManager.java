@@ -1,4 +1,7 @@
-package org.example;
+package network;
+
+import user.Conversation;
+import user.User;
 
 import java.util.ArrayList;
 

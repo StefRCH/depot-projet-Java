@@ -1,4 +1,4 @@
-package org.example;
+package network;
 
 public class ReceiverThread {
 }

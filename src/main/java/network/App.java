@@ -1,12 +1,8 @@
-package org.example;
+package network;
+
+import user.UserManager;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Scanner;  // Import the Scanner class
-import java.util.Timer;
-
 
 
 /**
@@ -35,25 +31,17 @@ public class App
         dgramSocket.send(outPacket); //Envoi de la notification de connexion
         dgramSocket.close(); */
 
-        while(true) {
-            if(userManager.getGo()) {
-                System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
-                String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
-                if (userPrompt.equals("d")) {
-                    userManager.sendUDP("d");
-                } else if (userPrompt.equals("m")) {
-                    userManager.sendUDP("m");
-                } else if (userPrompt.equals("gabu")) {
-                    System.out.println("C'est moi qui l'ai eu");
-                }
-            } else {
-                continue;
+        while (true) {
+            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
+            String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
+            if (userPrompt.equals("d")) {
+                userManager.sendUDP("d");
+            } else if (userPrompt.equals("m")) {
+                userManager.sendUDP("m");
+            } else if (userPrompt.equals("gabu")) {
+                System.out.println("C'est moi qui l'ai eu");
             }
         }
     }
-
-
-
-
 }
 
