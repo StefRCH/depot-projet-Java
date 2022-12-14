@@ -5,14 +5,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.*;
-
 public class Login_Form extends javax.swing.JFrame {
-
+    public User user;
     /**
      * Creates new form Login_Form
      */
-    public Login_Form() {
+    public Login_Form(User usr) {
         initComponents();
+        this.user=usr;
     }
 
     /**
@@ -132,25 +132,10 @@ public class Login_Form extends javax.swing.JFrame {
     private void LogButtonActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
         if(this.Pseudo.getText().length()!=0){
-            HomeFrame homepage = new HomeFrame();
+            this.user.setPseudo(this.Pseudo.getText());
+            HomeFrame homepage = new HomeFrame(this.user);
             homepage.setVisible(true);
             this.setVisible(false);
-
-
-            String pseudo = Pseudo.getText();
-            System.out.println(pseudo);
-            DatagramSocket dgramSocket = null; //Création d'un socket pour notifier la connection de l'utilisateur actuel
-            try {
-                dgramSocket = new DatagramSocket();
-                String message = "c/" + pseudo; //Création du payload du paquet UDP
-                InetAddress broadcast = InetAddress.getByName("10.1.255.255"); //Adresse destination !!Doit etre un broadcast !!
-                int port = 4445; //Port de destination du broadcast
-                DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(), broadcast, port); //Création du datagramme UDP
-                dgramSocket.send(outPacket); //Envoi de la notification de connexion
-                dgramSocket.close(); //Fermeture du socket
-            } catch (IOException socketException) {
-                socketException.printStackTrace();
-            }
 
         }
         else{
@@ -186,11 +171,11 @@ public class Login_Form extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Login_Form().setVisible(true);
             }
-        });
+        });*/
     }
 
     // Variables declaration - do not modify

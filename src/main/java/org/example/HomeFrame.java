@@ -6,14 +6,27 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author sroche
+ */
 public class HomeFrame extends javax.swing.JFrame {
 
+    public User user;
     /**
      * Creates new form HomeFrame
      */
-    public HomeFrame() {
+    public HomeFrame(User usr) {
         initComponents();
+        this.user=usr;
+        this.pseudo_disp.setText(this.user.getPseudo());
     }
+
+    public Changing_Pseudo changeP;
+    public Change_thread pseudo_changer;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,9 +41,10 @@ public class HomeFrame extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
+        pseudo_disp = new javax.swing.JLabel();
+        ChangeBut = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1320, 490));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -54,16 +68,40 @@ public class HomeFrame extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
         );
 
+        pseudo_disp.setText("PSEUDO");
+
+        ChangeBut.setText("Changer");
+        ChangeBut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ChangeButActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 240, Short.MAX_VALUE)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addContainerGap(76, Short.MAX_VALUE)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                                                .addComponent(pseudo_disp)
+                                                .addGap(90, 90, 90))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                                                .addComponent(ChangeBut)
+                                                .addGap(70, 70, 70))))
         );
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGap(42, 42, 42)
+                                .addComponent(pseudo_disp)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ChangeBut)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        pseudo_disp.getAccessibleContext().setAccessibleDescription("");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -94,8 +132,19 @@ public class HomeFrame extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        getAccessibleContext().setAccessibleParent(this);
+
         pack();
     }// </editor-fold>
+
+    public void ChangeButActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+        this.changeP= new Changing_Pseudo(this.user);
+        this.pseudo_changer = new Change_thread(changeP);
+        pseudo_changer.start();
+    }
+
+
 
     /**
      * @param args the command line arguments
@@ -125,17 +174,19 @@ public class HomeFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new HomeFrame().setVisible(true);
             }
-        });
+        });*/
     }
 
     // Variables declaration - do not modify
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
+    public javax.swing.JButton ChangeBut;
+    public javax.swing.JPanel jPanel1;
+    public javax.swing.JPanel jPanel2;
+    public javax.swing.JPanel jPanel3;
+    public javax.swing.JPanel jPanel4;
+    public javax.swing.JLabel pseudo_disp;
     // End of variables declaration
 }

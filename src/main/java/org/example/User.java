@@ -15,6 +15,8 @@ public class User {
         return pseudo;
     }
 
+    public void setPseudo(String Saisie) { this.pseudo=Saisie; }
+
     public InetAddress getIpAddress() {
         return ipAddress;
     }
