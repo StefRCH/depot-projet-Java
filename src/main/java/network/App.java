@@ -13,20 +13,18 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException, InterruptedException {
+        //Lancement du serveur TCP pour accepter les requêtes entrantes
+        TCPNetworkManager tcpNetworkManager = new TCPNetworkManager();
+        tcpNetworkManager.start();
 
         //Lancement d'UDP
         UDPThread udpThread = new UDPThread();
         udpThread.start();
 
-        //Lancement du serveur TCP pour accepter les requêtes entrantes
-        TCPNetworkManager tcpNetworkManager = new TCPNetworkManager();
-        tcpNetworkManager.start();
-
         //Création de l'User Manager au lancement de l'application
         UserManager userManager = udpThread.getUserManager();
-
         userManager.sendUDP("c");
-        Input scanner = userManager.getScanner();
+
         /*System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
         String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
@@ -38,6 +36,7 @@ public class App
         dgramSocket.send(outPacket); //Envoi de la notification de connexion
         dgramSocket.close(); */
 
+        Input scanner = userManager.getScanner();
         while (true) {
             System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
             String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;

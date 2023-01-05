@@ -109,13 +109,12 @@ public class UserManager {
         return "SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users";
     }
 
-    //Méthode pour se connecter à serveur TCP
+    //Méthode pour se connecter à un serveur TCP
     public String sendTCP(String type, String ... ip) throws IOException {
         String ipAddress = ip.length > 0 ? ip[0] : null ;
 
-        //Si l'on reçoit une requête de connexion à notre serveur TCP --> on se connecte au serveur de celui qui a envoyé la requête
-        if(type.equals("s")){
-            String serverAddress = ipAddress.substring(1);
+        if(type.equals("s")){ //Démarrage d'une conversation
+            String serverAddress = "10.1.5.159";
             int port = 4000; //numéro de port du serveur
             Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
 
@@ -162,8 +161,13 @@ public class UserManager {
             this.createDatagramUDP(null, ipAddress.substring(1), "g");
 
         } else if(type.equals("n")) { // Message des autres utilisateurs pour annoncer leur existence afin que le nouvel utilisateur mette sa liste à jour
-            this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
-            return "Notification successful";
+            if(this.users.get(0).getPseudo() == null){
+                return "Not connected for the moment";
+            }
+            else{
+                this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
+                return "Notification successful";
+            }
         }
         return "Fail sending UDP Packet";
     }
@@ -171,8 +175,8 @@ public class UserManager {
     public int createDatagramUDP(String pseudo, String ipAddr, String message) throws IOException {
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket
         String payload = message + "/" + pseudo; //Création du payload
-        InetAddress broadcast = InetAddress.getByName(ipAddr); //Adresse destination (broadcast)
-        DatagramPacket outPacket = new DatagramPacket(payload.getBytes(), payload.length(), broadcast, 4445); //Création du datagramme UDP
+        InetAddress destination = InetAddress.getByName(ipAddr); //Adresse destination
+        DatagramPacket outPacket = new DatagramPacket(payload.getBytes(), payload.length(), destination, 4445); //Création du datagramme UDP
         dgramSocket.send(outPacket); //Envoi du datagramme
         dgramSocket.close(); //Fermeture du socket
         return 0;
