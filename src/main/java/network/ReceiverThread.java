@@ -1,12 +1,9 @@
 package network;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
-class ReceiverThread implements Runnable
+public class ReceiverThread implements Runnable
 {
     private Thread thread; // contiendra le thread du client
     private Socket sock; // recevra le socket liant au client
@@ -15,19 +12,16 @@ class ReceiverThread implements Runnable
     //private BlablaServ blablaServ; // pour utilisation des méthodes de la classe principale
     private int numConv=0; // contiendra le numéro de client géré par ce thread
 
-    //** Constructeur : crée les éléments nécessaires au dialogue avec le client **
-    ReceiverThread(Socket s) // On envoie le socket en parametre
+    // Constructeur : crée les éléments nécessaires au dialogue avec le client
+    ReceiverThread(Socket s) throws IOException // On envoie le socket en parametre
     {
         this.sock=s; // passage de local en global
+        InputStream inputStream = sock.getInputStream();
 
-        try
-        {
-            // fabrication d'une variable permettant l'utilisation du flux d'entrée avec des string
-            this.in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-            // ajoute le flux de sortie dans la liste et récupération de son numéro
-            numConv +=1;
-        }
-        catch (IOException e){ }
+        // création d'une variable permettant l'utilisation du flux d'entrée avec des string
+        this.in = new BufferedReader(new InputStreamReader(inputStream));
+        // ajoute le flux de sortie dans la liste et récupération de son numéro
+        numConv +=1;
 
         this.thread = new Thread(this); // instanciation du thread
         this.thread.start(); // démarrage du thread, la fonction run() est ici lancée

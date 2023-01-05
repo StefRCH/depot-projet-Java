@@ -14,8 +14,15 @@ public class App
 
     public static void main( String[] args ) throws IOException, InterruptedException {
 
-        UDPThread udpThread = new UDPThread(); //Création de l'User Manager au lancement de l'application
+        //Lancement d'UDP
+        UDPThread udpThread = new UDPThread();
         udpThread.start();
+
+        //Lancement du serveur TCP pour accepter les requêtes entrantes
+        TCPNetworkManager tcpNetworkManager = new TCPNetworkManager();
+        tcpNetworkManager.start();
+
+        //Création de l'User Manager au lancement de l'application
         UserManager userManager = udpThread.getUserManager();
 
         userManager.sendUDP("c");
@@ -32,14 +39,21 @@ public class App
         dgramSocket.close(); */
 
         while (true) {
-            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
+            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
             String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
             if (userPrompt.equals("d")) {
                 userManager.sendUDP("d");
             } else if (userPrompt.equals("m")) {
                 userManager.sendUDP("m");
-            } else if (userPrompt.equals("gabu")) {
-                System.out.println("C'est moi qui l'ai eu");
+            } else if(userPrompt.equals("s")){
+                userManager.sendTCP("s");
+            }
+
+
+
+
+            else if (userPrompt.equals("g")){
+                System.out.println("Eh belle bite !");
             }
         }
     }
