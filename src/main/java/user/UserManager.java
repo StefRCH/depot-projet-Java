@@ -103,11 +103,11 @@ public class UserManager {
         for(User n : users)
             if (n.getPseudo().equals(pseudo)){
                 //String message = pseudo +ipAddress;
-                this.sendUDP("w", ipAddress.toString());
+                this.sendUDPnotUniquePseudo(ipAddress.toString());
                 //System.out.println("ERROR ---- The pseudo is already used.");
                 return false;
             } else {
-                this.sendUDP("g", ipAddress.toString());
+                this.sendUDPUniquePseudo(ipAddress.toString(),pseudo);
                 //System.out.println("SUCCESS ---- This pseudo is unique.");
             }
         return true;
@@ -141,8 +141,8 @@ public class UserManager {
     }
 
     //Méthode pour se connecter à un serveur TCP
-    public String sendTCP(String type, String ... ip) throws IOException {
-        String ipAddress = ip.length > 0 ? ip[0] : null ;
+    public String sendTCP(String type, String ... data) throws IOException {
+        String ipAddress = data.length > 0 ? data[0] : null ;
 
         if(type.equals("s")){ //Démarrage d'une conversation
             String serverAddress = "10.1.5.81";
@@ -163,40 +163,41 @@ public class UserManager {
         return "connexion impossible";
     }
 
-        public String sendUDP(String type, String ... data) throws IOException {
-        String ipAddress = data.length > 0 ? data[0] : null ; //S'il n'y a pas d'@IP --> ipAddress vaut null
-        if(type.equals("c")) {
-            // Create a Scanner object
-            System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
-            String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
-            this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
-            createDatagramUDP(pseudo, "10.1.255.255", "c");
-            return "Connection successful";
+    public void sendUDPConnexion() throws IOException {
+        // Create a Scanner object
+        System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
+        String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
+        this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
+        createDatagramUDP(pseudo, "10.1.255.255", "c");
+        System.out.println("Connection successful");
+    }
 
+    public void sendUDPDeconnexion() throws IOException {
+        this.createDatagramUDP(users.get(0).getPseudo(),"10.1.255.255", "d");
+        System.out.println("Logout successful");
+    }
 
-        } else if (type.equals("d")) { //Envoi d'un broadcast pour faire part de notre déconnexion aux autres utilisateurs et qu'ils mettent leur liste à jour
-            this.createDatagramUDP(users.get(0).getPseudo(),"10.1.255.255", "d");
-            return "logout successful";
+    //Selection d'un nouveau pseudo et envoi en broadcast du nouveau pseudo choisi
+    public void sendUDPChangePseudo() throws IOException {
+        System.out.println("Rentrez votre nouveau pseudo : ");
+        String newPseudo = scanner.getNextLine();
+        this.createDatagramUDP(newPseudo, "10.1.255.255", "m");
+    }
 
-        } else if (type.equals("m")) { //Envoi d'un changement de pseudo avec notre nouveau pseudo à l'intérieur du paquet
-            System.out.println("Rentrez votre nouveau pseudo : ");
-            String newPseudo = scanner.getNextLine();
-            this.createDatagramUDP(newPseudo, "10.1.255.255", "m");
-            return "Changing pseudo successful";
+    //Réponse à un message "m" lorsqu'une personne a pris un pseudo déjà utilisé.
+    public void sendUDPnotUniquePseudo(String ipAddress) throws IOException {
+        this.createDatagramUDP(null, ipAddress.substring(1), "w"); // substring pour enlever le premier "/"
+    }
 
-        } else if(type.equals("w")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo déjà utilisé.
-            this.createDatagramUDP(null, ipAddress.substring(1), "w"); // substring pour enlever le premier "/"
+    //Réponse à un message "m" lorsqu'un utilisateur a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci par un message de type "g"
+    public void sendUDPUniquePseudo(String ipAddress, String pseudo) throws IOException {
+        //On met dand le paquet le pseudo que l'utilisateur souhaiter pour prendre pour qu'il puisse l'update de son côté
+        this.createDatagramUDP(pseudo, ipAddress.substring(1), "g");
+    }
 
-        } else if(type.equals("g")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci
-            //On met dand le paquet le pseudo que l'utilisateur souhaiter pour prendre pour qu'il puisse l'update de son côté
-            this.createDatagramUDP(data[1], ipAddress.substring(1), "g"); //data[2] au pseudo de l'utilisateur qu'on lui renvoie
-
-        } else if(type.equals("n")) { //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
-            System.out.println(ipAddress.substring(1));
-            this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
-            return "Notification successful";
-        }
-        return "Fail sending UDP Packet";
+    //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
+    public void sendUDPNotification(String ipAddress) throws IOException {
+        this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
     }
 
     public int createDatagramUDP(String pseudo, String ipAddr, String message) throws IOException {

@@ -23,7 +23,7 @@ public class App
 
         //Création de l'User Manager au lancement de l'application
         UserManager userManager = udpThread.getUserManager();
-        userManager.sendUDP("c");
+        userManager.sendUDPConnexion();
 
 
         /*String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
@@ -40,9 +40,9 @@ public class App
             System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
             String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
             if (userPrompt.equals("d")) {
-                userManager.sendUDP("d");
+                userManager.sendUDPDeconnexion();
             } else if (userPrompt.equals("m")) {
-                userManager.sendUDP("m");
+                userManager.sendUDPChangePseudo();
             } else if(userPrompt.equals("s")){
                 userManager.sendTCP("s");
             }
