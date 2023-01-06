@@ -69,29 +69,42 @@ public class UserManager {
                 System.out.println(this.deleteUser(data[1], ipAddress));
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
-                if(this.checkUser(data[1], ipAddress)){ //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
-                    for(User n : users)  //Si c'est le cas, on parcourt la liste des users dans notre liste
-                        if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
-                            n.setPseudo(data[1]); //On lui met le nouveau pseudo
-                            System.out.println("SUCCESS ---- The pseudo has been changed");
-                            this.sendUDPUniquePseudo(data[2],data[1]); //On le notifie que tout est ok pour nous
-                        }
+                if(data[2].equals(this.users.get(0).getIpAddress())){
+                    continue;
                 }
-                else { //Si le pseudo est déjà pris
-                    this.sendUDPnotUniquePseudo(data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
+                else{
+                    if(this.checkUser(data[1], ipAddress)){ //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
+                        for(User n : users)  //Si c'est le cas, on parcourt la liste des users dans notre liste
+                            if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
+                                n.setPseudo(data[1]); //On lui met le nouveau pseudo
+                                System.out.println("SUCCESS ---- The pseudo has been changed");
+                                this.sendUDPUniquePseudo(data[2],data[1]); //On le notifie que tout est ok pour nous
+                            }
+                    }
+                    else { //Si le pseudo est déjà pris
+                        this.sendUDPnotUniquePseudo(data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
+                    }
                 }
             }
             else if (data[0].equals("w")) { //Réception d'un message des autres users pour notifier que le pseudo existe déjà dans leur liste de contact
+                if(data[2].equals(this.users.get(0).getIpAddress())){
+                    continue;
+                }
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
                 this.sendUDPChangePseudo();
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
-                System.out.println("SUCCESS ---- The chosen pseudo is unique");
-                for(User n : users)  //Si c'est le cas, on parcourt la liste des users
-                    if (n.getIpAddress().equals(this.users.get(0).getIpAddress())){ //On retrouve notre profil grâce à notre @IP
-                        n.setPseudo(data[1]); //On change notre pseudo par le nouveau choisi et reçu dans le paquet "g"
-                        System.out.println("SUCCESS ---- Your pseudo has been changed");
-                    }
+                if(data[2].equals(this.users.get(0).getIpAddress())){
+                    continue;
+                }
+                else{
+                    System.out.println("SUCCESS ---- The chosen pseudo is unique");
+                    for(User n : users)  //Si c'est le cas, on parcourt la liste des users
+                        if (n.getIpAddress().equals(this.users.get(0).getIpAddress())){ //On retrouve notre profil grâce à notre @IP
+                            n.setPseudo(data[1]); //On change notre pseudo par le nouveau choisi et reçu dans le paquet "g"
+                            System.out.println("SUCCESS ---- Your pseudo has been changed");
+                        }
+                }
             }
             else if(data[0].equals("n")) { // Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
                 System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
