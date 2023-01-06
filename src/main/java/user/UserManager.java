@@ -40,7 +40,7 @@ public class UserManager {
                 if(this.checkUser(data[1], ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
                     System.out.println(this.createUser(data[1], ipAddress));
                     System.out.println(data[1]);
-                    this.sendUDP("n"); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
+                    this.sendUDP("n",data[2]); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
                 }
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
@@ -116,7 +116,7 @@ public class UserManager {
         String ipAddress = ip.length > 0 ? ip[0] : null ;
 
         if(type.equals("s")){ //Démarrage d'une conversation
-            String serverAddress = "10.1.5.159";
+            String serverAddress = "10.1.5.81";
             int port = 4000; //numéro de port du serveur
             Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
 
