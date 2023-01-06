@@ -57,7 +57,7 @@ public class UDPThread extends Thread {
                 }
 
                 this.dataList.add(received); //Ajout du payload UDP dans la liste
-                System.out.println(this.dataList.get(0));
+                System.out.println("liste data : " + this.dataList.get(0));
 
                 this.userManager.update(this.dataList);
                 this.dataList.clear();

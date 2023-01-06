@@ -25,9 +25,8 @@ public class App
         UserManager userManager = udpThread.getUserManager();
         userManager.sendUDP("c");
 
-        /*System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
 
-        String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
+        /*String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
         String message = "c/" +pseudo; //Création du payload du paquet UDP
         InetAddress broadcast = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!

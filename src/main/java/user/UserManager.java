@@ -33,12 +33,14 @@ public class UserManager {
             String data[] = newData.get(i).split("/"); // On split les informations que l'on reçoit dans le paquet pour les récupérer par la suite
             InetAddress ipAddress = InetAddress.getByName(data[2]); // Conversion de l'addresse ip recu de String en InetAddress
 
-            if(data[0].equals("c")) // Lors de la connexion
+            // Lorsque l'on reçoit un message de connexion de la part d'un autre user
+            if(data[0].equals("c"))
             {
-                if(this.checkUser(data[1], ipAddress)){
+                //On vérifie que cette personne a choisi un pseudo unique en se basant sur notre liste
+                if(this.checkUser(data[1], ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
                     System.out.println(this.createUser(data[1], ipAddress));
                     System.out.println(data[1]);
-                    this.sendUDP("n");
+                    this.sendUDP("n"); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
                 }
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
@@ -61,7 +63,7 @@ public class UserManager {
             else if (data[0].equals("g")) { // Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
                 System.out.println("SUCCESS ---- The pseudo is unique");
             }
-            else if(data[0].equals("n")) { // Réception d'un message d'un nouvel utilisateur arrivant dans le chat system
+            else if(data[0].equals("n")) { // Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
                 System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
                 System.out.println(data[1]);
             }
@@ -135,7 +137,6 @@ public class UserManager {
         public String sendUDP(String type, String ... ip) throws IOException {
         String ipAddress = ip.length > 0 ? ip[0] : null ;
         if(type.equals("c")) {
-
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
             String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
@@ -144,30 +145,26 @@ public class UserManager {
             return "Connection successful";
 
 
-        } else if (type.equals("d")) { //Envoi d'un broadcast de deconnexion
+        } else if (type.equals("d")) { //Envoi d'un broadcast pour faire part de notre déconnexion aux autres utilisateurs et qu'ils mettent leur liste à jour
             this.createDatagramUDP(users.get(0).getPseudo(),"10.1.255.255", "d");
             return "logout successful";
 
-        } else if (type.equals("m")) { //Envoi d'un changement de pseudo
+        } else if (type.equals("m")) { //Envoi d'un changement de pseudo avec notre nouveau pseudo à l'intérieur du paquet
             System.out.println("Rentrez votre nouveau pseudo : ");
             String newPseudo = scanner.getNextLine();
             this.createDatagramUDP(newPseudo, "10.1.255.255", "m");
             return "Changing pseudo successful";
 
-        } else if(type.equals("w")) { //Wrong pseudo, on envoie ce paquet si la personne a pris un pseudo déjà utilisé.
+        } else if(type.equals("w")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo déjà utilisé.
             this.createDatagramUDP(null, ipAddress.substring(1), "w"); // substring pour enlever le premier "/"
 
-        } else if(type.equals("g")) {
+        } else if(type.equals("g")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci
             this.createDatagramUDP(null, ipAddress.substring(1), "g");
 
-        } else if(type.equals("n")) { // Message des autres utilisateurs pour annoncer leur existence afin que le nouvel utilisateur mette sa liste à jour
-            if(this.users.get(0).getPseudo() == null){
-                return "Not connected for the moment";
-            }
-            else{
-                this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
-                return "Notification successful";
-            }
+        } else if(type.equals("n")) { //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
+            System.out.println(ipAddress.substring(1));
+            this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
+            return "Notification successful";
         }
         return "Fail sending UDP Packet";
     }
