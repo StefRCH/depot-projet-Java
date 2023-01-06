@@ -61,7 +61,7 @@ public class UserManager {
                 if(this.checkUser(data[1], ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
                     System.out.println(this.createUser(data[1], ipAddress));
                     System.out.println(data[1]);
-                    this.sendUDP("n",data[2]); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
+                    this.sendUDP("n",data[2],null); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
                 }
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
@@ -165,7 +165,7 @@ public class UserManager {
 
         public String sendUDP(String type, String ... data) throws IOException {
         String ipAddress = data.length > 0 ? data[0] : null ; //S'il n'y a pas d'@IP --> ipAddress vaut null
-        String pseudoReceived = data.length > 0 ? data[1] : null ; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
+        String pseudoReceived = data[1]; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
         if(type.equals("c")) {
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
