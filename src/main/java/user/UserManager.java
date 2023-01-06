@@ -165,7 +165,7 @@ public class UserManager {
 
         public String sendUDP(String type, String ... data) throws IOException {
         String ipAddress = data.length > 0 ? data[0] : null ; //S'il n'y a pas d'@IP --> ipAddress vaut null
-        String pseudoReceived = data[1]; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
+        String pseudoReceived = data.length > 0 ? data[1] : null ; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
         if(type.equals("c")) {
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
