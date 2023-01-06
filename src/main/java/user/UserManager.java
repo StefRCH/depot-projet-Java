@@ -189,7 +189,7 @@ public class UserManager {
 
         } else if(type.equals("g")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci
             //On met dand le paquet le pseudo que l'utilisateur souhaiter pour prendre pour qu'il puisse l'update de son côté
-            this.createDatagramUDP(data[2], ipAddress.substring(1), "g"); //data[2] au pseudo de l'utilisateur qu'on lui renvoie
+            this.createDatagramUDP(data[1], ipAddress.substring(1), "g"); //data[2] au pseudo de l'utilisateur qu'on lui renvoie
 
         } else if(type.equals("n")) { //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
             System.out.println(ipAddress.substring(1));
