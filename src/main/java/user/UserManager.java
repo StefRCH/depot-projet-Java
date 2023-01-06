@@ -165,7 +165,6 @@ public class UserManager {
 
         public String sendUDP(String type, String ... data) throws IOException {
         String ipAddress = data.length > 0 ? data[0] : null ; //S'il n'y a pas d'@IP --> ipAddress vaut null
-        String pseudoReceived = data.length > 0 ? data[1] : null ; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
         if(type.equals("c")) {
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
@@ -190,7 +189,7 @@ public class UserManager {
 
         } else if(type.equals("g")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci
             //On met dand le paquet le pseudo que l'utilisateur souhaiter pour prendre pour qu'il puisse l'update de son côté
-            this.createDatagramUDP(pseudoReceived, ipAddress.substring(1), "g");
+            this.createDatagramUDP(data[2], ipAddress.substring(1), "g"); //data[2] au pseudo de l'utilisateur qu'on lui renvoie
 
         } else if(type.equals("n")) { //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
             System.out.println(ipAddress.substring(1));
