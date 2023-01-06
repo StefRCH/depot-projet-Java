@@ -53,15 +53,16 @@ public class UserManager {
             // data[0] --> type de message (ex: "n", "m") | data [1] --> pseudo | data[2] --> @IP
             String data[] = newData.get(i).split("/"); // On split les informations que l'on reçoit dans le paquet pour les récupérer par la suite
             InetAddress ipAddress = InetAddress.getByName(data[2]); // Conversion de l'addresse ip reçue de String en InetAddress
+            String pseudo = data[1];
 
             // Lorsque l'on reçoit un message de connexion de la part d'un autre user
             if(data[0].equals("c"))
             {
                 //On vérifie que cette personne a choisi un pseudo unique en se basant sur notre liste
-                if(this.checkUser(data[1], ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
-                    System.out.println(this.createUser(data[1], ipAddress));
-                    System.out.println(data[1]);
-                    this.sendUDP("n",data[2],null); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
+                if(this.checkUser(pseudo, ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
+                    System.out.println(this.createUser(pseudo, ipAddress));
+                    System.out.println(pseudo);
+                    this.sendUDPNotification(data[2]); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
                 }
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
@@ -73,16 +74,16 @@ public class UserManager {
                         if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
                             n.setPseudo(data[1]); //On lui met le nouveau pseudo
                             System.out.println("SUCCESS ---- The pseudo has been changed");
-                            this.sendUDP("g",data[2],data[1]); //On le notifie que tout est ok pour nous
+                            this.sendUDPUniquePseudo(data[2],data[1]); //On le notifie que tout est ok pour nous
                         }
                 }
                 else { //Si le pseudo est déjà pris
-                    this.sendUDP("w",data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
+                    this.sendUDPnotUniquePseudo(data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
                 }
             }
             else if (data[0].equals("w")) { //Réception d'un message des autres users pour notifier que le pseudo existe déjà dans leur liste de contact
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
-                this.sendUDP("m");
+                this.sendUDPChangePseudo();
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
                 System.out.println("SUCCESS ---- The chosen pseudo is unique");
