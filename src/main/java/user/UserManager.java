@@ -7,12 +7,15 @@ import network.TransmitterThread;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 public class UserManager {
 
     private ArrayList<User> users = new ArrayList<>();
     private Input scanner;
+    private InetAddress notreIP;
+    //private InetAddress notreIP;
 
     public UserManager () throws IOException {
 
@@ -23,6 +26,23 @@ public class UserManager {
 
     }
 
+    public String getIP(){
+        // Ce code permet de récuperer notre IPv4. Le simple getHostAddress ne fonctionne pas sur les PC de l'INSA
+        try {
+            Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
+            while( networkInterfaceEnumeration.hasMoreElements()){
+                for ( InterfaceAddress interfaceAddress : networkInterfaceEnumeration.nextElement().getInterfaceAddresses())
+                    if ( interfaceAddress.getAddress().isSiteLocalAddress()) {
+                        this.notreIP = InetAddress.getByName(interfaceAddress.getAddress().getHostAddress());
+                    }
+
+            }
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return notreIP.toString().substring(1);
+    }
+
 
     public void update(List<String> dataList) throws IOException {
 
@@ -30,8 +50,9 @@ public class UserManager {
         //this.udpThread.clearData(); //Remise à 0 de la liste.
         for(int i = 0; i < newData.size() ; i++)
         {
+            // data[0] --> type de message (ex: "n", "m") | data [1] --> pseudo | data[2] --> @IP
             String data[] = newData.get(i).split("/"); // On split les informations que l'on reçoit dans le paquet pour les récupérer par la suite
-            InetAddress ipAddress = InetAddress.getByName(data[2]); // Conversion de l'addresse ip recu de String en InetAddress
+            InetAddress ipAddress = InetAddress.getByName(data[2]); // Conversion de l'addresse ip reçue de String en InetAddress
 
             // Lorsque l'on reçoit un message de connexion de la part d'un autre user
             if(data[0].equals("c"))
@@ -46,22 +67,30 @@ public class UserManager {
             else if (data[0].equals("d")) { //C'est une déconnexion
                 System.out.println(this.deleteUser(data[1], ipAddress));
             }
-            else if (data[0].equals("m")) { //C'est un changement de pseudo
-                if(this.checkUser(data[1], ipAddress)){
-                    for(User n : users) //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
-                        if (n.getIpAddress().equals(data[2])){
-                            n.setPseudo(data[1]);
-                            // Si c'est le cas, notification de réussite de changement
+            else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
+                if(this.checkUser(data[1], ipAddress)){ //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
+                    for(User n : users)  //Si c'est le cas, on parcourt la liste des users dans notre liste
+                        if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
+                            n.setPseudo(data[1]); //On lui met le nouveau pseudo
                             System.out.println("SUCCESS ---- The pseudo has been changed");
+                            this.sendUDP("g",data[2],data[1]); //On le notifie que tout est ok pour nous
                         }
                 }
+                else { //Si le pseudo est déjà pris
+                    this.sendUDP("w",data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
+                }
             }
-            else if (data[0].equals("w")) { // Réception d'un message des autres users pour notifier que le pseudo existe déjà dans leur liste de contact
+            else if (data[0].equals("w")) { //Réception d'un message des autres users pour notifier que le pseudo existe déjà dans leur liste de contact
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
                 this.sendUDP("m");
             }
-            else if (data[0].equals("g")) { // Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
-                System.out.println("SUCCESS ---- The pseudo is unique");
+            else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
+                System.out.println("SUCCESS ---- The chosen pseudo is unique");
+                for(User n : users)  //Si c'est le cas, on parcourt la liste des users
+                    if (n.getIpAddress().equals(this.users.get(0).getIpAddress())){ //On retrouve notre profil grâce à notre @IP
+                        n.setPseudo(data[1]); //On change notre pseudo par le nouveau choisi et reçu dans le paquet "g"
+                        System.out.println("SUCCESS ---- Your pseudo has been changed");
+                    }
             }
             else if(data[0].equals("n")) { // Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
                 System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
@@ -73,7 +102,7 @@ public class UserManager {
     public boolean checkUser(String pseudo, InetAddress ipAddress) throws IOException{
         for(User n : users)
             if (n.getPseudo().equals(pseudo)){
-                String message = pseudo +ipAddress;
+                //String message = pseudo +ipAddress;
                 this.sendUDP("w", ipAddress.toString());
                 //System.out.println("ERROR ---- The pseudo is already used.");
                 return false;
@@ -134,8 +163,9 @@ public class UserManager {
         return "connexion impossible";
     }
 
-        public String sendUDP(String type, String ... ip) throws IOException {
-        String ipAddress = ip.length > 0 ? ip[0] : null ;
+        public String sendUDP(String type, String ... data) throws IOException {
+        String ipAddress = data.length > 0 ? data[0] : null ; //S'il n'y a pas d'@IP --> ipAddress vaut null
+        String pseudoReceived = data.length > 0 ? data[1] : null ; //S'il n'y a pas de pseudo --> pseudoReceived vaut null
         if(type.equals("c")) {
             // Create a Scanner object
             System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
@@ -159,7 +189,8 @@ public class UserManager {
             this.createDatagramUDP(null, ipAddress.substring(1), "w"); // substring pour enlever le premier "/"
 
         } else if(type.equals("g")) { //Réponse à un message "m" lorsqu'une personne a pris un pseudo unique afin de lui confirmer l'unicité de celui-ci
-            this.createDatagramUDP(null, ipAddress.substring(1), "g");
+            //On met dand le paquet le pseudo que l'utilisateur souhaiter pour prendre pour qu'il puisse l'update de son côté
+            this.createDatagramUDP(pseudoReceived, ipAddress.substring(1), "g");
 
         } else if(type.equals("n")) { //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
             System.out.println(ipAddress.substring(1));

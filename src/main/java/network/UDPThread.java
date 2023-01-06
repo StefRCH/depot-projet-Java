@@ -37,8 +37,7 @@ public class UDPThread extends Thread {
                     for ( InterfaceAddress interfaceAddress : networkInterfaceEnumeration.nextElement().getInterfaceAddresses())
                         if ( interfaceAddress.getAddress().isSiteLocalAddress()) {
                             this.notreIP = InetAddress.getByName(interfaceAddress.getAddress().getHostAddress());
-                            System.out.println(this.notreIP);
-
+                            System.out.println("Notre @IP = " + this.notreIP.toString().substring(1));
                         }
 
                 }
