@@ -18,21 +18,26 @@ public class TransmitterThread extends Thread {
     public void run() {
         boolean quit = false;
         try {
+            /*
             OutputStream outputStream = sock.getOutputStream();
             PrintWriter writer = new PrintWriter(outputStream, true); //J'isole le flux de comm en sortie (serveur vers client)
+            */
+            PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
 
             while (!quit) { //Tant que le client n'a pas demandé à quitter
-                Scanner myObj = new Scanner(System.in);  // Create a Scanner object
+                Scanner myObj = new Scanner(System.in); //Create a Scanner object
                 System.out.println("Enter your message :");
-                String message = myObj.nextLine();  // Read user input
-                writer.println(message);
+                String message = myObj.nextLine(); //Read user input
+                if(message == "quit"){
+                    sock.close();
+                    quit = true;
+                }
+                else{
+                    flux.println(message); //Envoi du message
+                }
             }
-
-            sock.close();
-
         } catch (IOException e) {
             e.printStackTrace();
-            quit = true;
         }
     }
 }
