@@ -36,15 +36,18 @@ public class App
         dgramSocket.close(); */
 
         Input scanner = userManager.getScanner();
-        while (true) {
+
+        boolean quit = false;
+        while (!quit) {
             System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
-            String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
+            String userPrompt = scanner.getNextLine(); //Lecture de l'entrée utilisateur;
             if (userPrompt.equals("d")) {
                 userManager.sendUDPDeconnexion();
             } else if (userPrompt.equals("m")) {
                 userManager.sendUDPChangePseudo();
             } else if(userPrompt.equals("s")){
-                userManager.sendTCP("s");
+                userManager.sendTCP();
+                quit = true;
             }
 
 

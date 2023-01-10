@@ -25,7 +25,7 @@ public class TransmitterThread extends Thread {
                 Scanner myObj = new Scanner(System.in);  // Create a Scanner object
                 System.out.println("Enter your message :");
                 String message = myObj.nextLine();  // Read user input
-                writer.println(emetteur.getPseudo() + " : " + message);
+                writer.println(message);
             }
 
             sock.close();

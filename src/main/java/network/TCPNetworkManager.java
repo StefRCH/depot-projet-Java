@@ -24,7 +24,7 @@ public class TCPNetworkManager extends Thread{
             try {
 
                 service = s.accept();
-                System.out.println("Client connecté :" + s); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
+                System.out.println("Client connecté : " + s.getInetAddress() + ":" + s.getLocalPort()); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
 
                 TransmitterThread transmit = null; //Pour chaque client connecté on crée un Thread qui va gérer les communications
                 transmit = new TransmitterThread(service);

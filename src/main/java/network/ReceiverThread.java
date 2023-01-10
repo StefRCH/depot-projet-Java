@@ -2,6 +2,8 @@ package network;
 
 import java.io.*;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ReceiverThread implements Runnable
 {
@@ -39,9 +41,11 @@ public class ReceiverThread implements Runnable
             // la lecture des données entrantes se fait caractère par caractère ...
             // ... jusqu'à trouver un caractère de fin de chaine
             String inputLine;
+            SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); //Création d'un format pour l'affichage de la date et l'heure avant chaque message
+            Date date = new Date();
             while ((inputLine = in.readLine()) != null) {
                 // Affichage du message sur la sortie standard
-                System.out.println("Message reçu du client : " + inputLine);
+                System.out.println(s.format(date) + " ---- Message reçu : " + inputLine);
             }
         }
         catch (Exception e){ }

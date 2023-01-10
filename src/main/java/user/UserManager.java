@@ -155,28 +155,24 @@ public class UserManager {
     }
 
     //Méthode pour se connecter à un serveur TCP
-    public void sendTCP(String type, String ... data) throws IOException {
-        String ipAddress = data.length > 0 ? data[0] : null ;
+    public void sendTCP() throws IOException {
+        //Démarrage d'une conversation
+        System.out.println("Saisissez l'adresse IPv4 : ");
+        String userPrompt = scanner.getNextLine();
+        String serverAddress = userPrompt; // 10.1.5.42
+        int port = 4000; //numéro de port du serveur
+        Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
 
-        if(type.equals("s")){ //Démarrage d'une conversation
-            System.out.println("Saisissez l'adresse IPv4 : ");
-            String userPrompt = scanner.getNextLine();
-            String serverAddress = userPrompt; // 10.1.5.42
-            int port = 4000; //numéro de port du serveur
-            Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
+        // On lance les threads d'échange afin d'envoyer et recevoir des messages
+        TransmitterThread transmit = null;
+        transmit = new TransmitterThread(socket);
+        transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
 
-            // On lance les threads d'échange afin d'envoyer et recevoir des messages
-            TransmitterThread transmit = null; //Pour chaque client connecté on crée un Thread qui va gérer les communications
-            transmit = new TransmitterThread(socket);
-            transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+        ReceiverThread runnableReceive = null;
+        Thread receive = new Thread(runnableReceive);
+        receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
-            ReceiverThread runnableReceive = null;
-            Thread receive = new Thread(runnableReceive);
-            receive.start(); //On lance le Thread (--> run() dans ReceiverThread)
-            System.out.println("SUCCESS ---- Connexion établie");
-        }
-
-        System.out.println("ERROR ---- Connexion impossible");;
+        System.out.println("SUCCESS ---- Connexion établie");
     }
 
     public void sendUDPConnexion() throws IOException {
