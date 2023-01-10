@@ -155,11 +155,13 @@ public class UserManager {
     }
 
     //Méthode pour se connecter à un serveur TCP
-    public String sendTCP(String type, String ... data) throws IOException {
+    public void sendTCP(String type, String ... data) throws IOException {
         String ipAddress = data.length > 0 ? data[0] : null ;
 
         if(type.equals("s")){ //Démarrage d'une conversation
-            String serverAddress = "10.1.5.81";
+            System.out.println("Saisissez l'adresse IPv4 : ");
+            String userPrompt = scanner.getNextLine();
+            String serverAddress = userPrompt; // 10.1.5.42
             int port = 4000; //numéro de port du serveur
             Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
 
@@ -171,10 +173,10 @@ public class UserManager {
             ReceiverThread runnableReceive = null;
             Thread receive = new Thread(runnableReceive);
             receive.start(); //On lance le Thread (--> run() dans ReceiverThread)
-            return "connexion établie";
+            System.out.println("SUCCESS ---- Connexion établie");
         }
 
-        return "connexion impossible";
+        System.out.println("ERROR ---- Connexion impossible");;
     }
 
     public void sendUDPConnexion() throws IOException {
@@ -189,6 +191,7 @@ public class UserManager {
     public void sendUDPDeconnexion() throws IOException {
         this.createDatagramUDP(users.get(0).getPseudo(),"10.1.255.255", "d");
         System.out.println("Logout successful");
+        System.exit(1);
     }
 
     //Selection d'un nouveau pseudo et envoi en broadcast du nouveau pseudo choisi
