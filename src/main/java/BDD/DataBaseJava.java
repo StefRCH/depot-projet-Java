@@ -30,11 +30,7 @@ public class DataBaseJava {
         String url ="jdbc:sqlite:messages.db";
 
         //SQL Statement for new table
-        String sql="CREATE TABLE IF NOT EXISTS "+NomTable+" (\n"
-                +" id integer PRIMARY KEY,\n"
-                +" name text NOT NULL,\n"
-                +" capacity real\n"
-                +");";
+        String sql="CREATE TABLE IF NOT EXISTS "+NomTable;
 
         String tables="SELECT name FROM sqlite_schema WHERE type='table' ";
         try{
@@ -53,9 +49,41 @@ public class DataBaseJava {
 
     }
 
+    public static void Deletetable(String NomTable){
+        String url ="jdbc:sqlite:messages.db";
+        String sql="DROP TABLE IF EXISTS "+NomTable;
+
+        try{
+            Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            stmt.execute(sql);
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void Alltables(){
+        String url ="jdbc:sqlite:messages.db";
+        String tables="SELECT name FROM sqlite_schema WHERE type='table' ";
+        try{
+            Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(tables);
+            while(rs.next()){
+                System.out.println(rs.getString("name"));
+            }
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void addCol(String Nomtable,String Nomcol,String Typecol){
+        String url ="jdbc:sqlite:messages.db";
+        String sql ="ALTER TABLE IF EXISTS "+Nomtable+" ADD "+Nomcol+" "+Typecol;
+    }
     public static void main(String[] args) {
         connect();
-        addtable("UserConversation");
+
 
     }
 }
