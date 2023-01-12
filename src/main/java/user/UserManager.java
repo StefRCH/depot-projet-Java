@@ -26,24 +26,6 @@ public class UserManager {
 
     }
 
-    public String getIP(){
-        // Ce code permet de récuperer notre IPv4. Le simple getHostAddress ne fonctionne pas sur les PC de l'INSA
-        try {
-            Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
-            while( networkInterfaceEnumeration.hasMoreElements()){
-                for ( InterfaceAddress interfaceAddress : networkInterfaceEnumeration.nextElement().getInterfaceAddresses())
-                    if ( interfaceAddress.getAddress().isSiteLocalAddress()) {
-                        this.notreIP = InetAddress.getByName(interfaceAddress.getAddress().getHostAddress());
-                    }
-
-            }
-        } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return notreIP.toString().substring(1);
-    }
-
-
     public void update(List<String> dataList) throws IOException {
 
         List<String> newData =  new ArrayList<String>(dataList);

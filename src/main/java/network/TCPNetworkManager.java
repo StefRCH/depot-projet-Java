@@ -6,14 +6,14 @@ import java.net.Socket;
 
 public class TCPNetworkManager extends Thread{
     private IPv4 server;
-    private int port;
 
     public void run(){
         //Création du socket serveur
+        this.server = new IPv4();
         ServerSocket s = null;
 
         try {
-            s = new ServerSocket (port,2,server.getIPv4());
+            s = new ServerSocket (4000,2,this.server.getIPv4());
             System.out.println("Serveur de socket créé : " + s);
         }
         catch (IOException e)

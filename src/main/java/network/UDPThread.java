@@ -5,7 +5,6 @@ import user.UserManager;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 public class UDPThread extends Thread {
@@ -20,7 +19,7 @@ public class UDPThread extends Thread {
     private IPv4 host;
 
     public UDPThread() throws IOException {
-
+        this.host = new IPv4();
         this.userManager = new UserManager();
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
         this.dataList = new ArrayList<String> (); //Création de la liste pour receptionner les datas
