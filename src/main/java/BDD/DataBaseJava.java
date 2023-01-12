@@ -1,8 +1,7 @@
 package BDD;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import javax.swing.plaf.nimbus.State;
+import java.sql.*;
 
 public class DataBaseJava {
     public static void connect(){
@@ -27,7 +26,35 @@ public class DataBaseJava {
         }
     }
 
+    public static void addtable(String NomTable){
+        String url ="jdbc:sqlite:messages.db";
+
+        //SQL Statement for new table
+        String sql="CREATE TABLE IF NOT EXISTS "+NomTable+" (\n"
+                +" id integer PRIMARY KEY,\n"
+                +" name text NOT NULL,\n"
+                +" capacity real\n"
+                +");";
+
+        String tables="SHOW TABLES";
+
+        try{
+            Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(tables);
+            stmt.execute(sql);
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+
+
+
+
+    }
+
     public static void main(String[] args) {
         connect();
+        addtable("TESTTABLE");
+
     }
 }

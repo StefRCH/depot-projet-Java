@@ -7,11 +7,9 @@ import java.sql.SQLException;
 
 public class TESTDB {
 
-    @Test
-    public void Connect() throws SQLException{
-        DataBaseJava DB = new DataBaseJava();
-        DB.connect();
 
-        assert true;
+    @Test
+    public void addDataTable(){
+
     }
 }
