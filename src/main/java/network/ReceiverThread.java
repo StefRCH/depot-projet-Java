@@ -61,11 +61,10 @@ public class ReceiverThread extends Thread {
         boolean quit = false;
         try {
             BufferedReader requete = new BufferedReader(new InputStreamReader(sock.getInputStream())); //J'isole le flux de comm en entrée (ce que l'on reçoit sur le serveur)
-            while (!quit) { //Tant que le client n'a pas demandé à quitter
-                System.out.println("Attente d'un message...");
+            System.out.println("Prêt à recevoir des messages :)");
 
-                String newMessage = null; // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
-                newMessage = requete.readLine();
+            while (!quit) { //Tant que le client n'a pas demandé à quitter
+                String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
 
                 SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); //Création d'un format pour l'affichage de la date et l'heure avant chaque message
                 Date date = new Date();

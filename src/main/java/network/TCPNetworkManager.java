@@ -5,11 +5,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class TCPNetworkManager extends Thread{
+    private IPv4 server;
+    private int port;
+
     public void run(){
+        //Création du socket serveur
         ServerSocket s = null;
 
         try {
-            s = new ServerSocket (4000) ;
+            s = new ServerSocket (port,2,server.getIPv4());
             System.out.println("Serveur de socket créé : " + s);
         }
         catch (IOException e)
@@ -21,16 +25,16 @@ public class TCPNetworkManager extends Thread{
         while(true){ //Sert pour avoir plusieurs clients en même temps
             System.out.println("En attente de connexion...");
             try {
-                Socket service = s.accept();
+                Socket service = s.accept(); //Le serveur se met en écoute, dans l'attente d'une requête client
                 System.out.println("Client connecté : " + s); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
 
+                //Création du thread permettant d'envoyer des messages
                 TransmitterThread transmit = new TransmitterThread(service);
-                transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+                transmit.start(); //On lance le Thread càd la méthode run() dans TransmitterThread
 
-                /*ReceiverThread runnableReceive = null;
-                Thread receive = new Thread(runnableReceive);*/
+                //Création du thread permettant de recevoir des messages
                 ReceiverThread receive = new ReceiverThread(service);
-                receive.start(); //On lance le Thread (--> run() dans ReceiverThread)
+                receive.start(); //On lance le Thread càd la méthode run() dans ReceiverThread
 
             } catch (IOException e) {
                 e.printStackTrace();

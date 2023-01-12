@@ -17,7 +17,7 @@ public class UDPThread extends Thread {
 
     private UserManager userManager; // Crée un lien entre UDPThread et UserManager
 
-    private InetAddress notreIP;
+    private IPv4 host;
 
     public UDPThread() throws IOException {
 
@@ -28,29 +28,14 @@ public class UDPThread extends Thread {
     }
 
     public void run(){
-
         try {
-            // Ce code permet de récuperer notre IPv4. Le simple getHostAddress ne fonctionne pas sur les PC de l'INSA
-            try {
-                Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
-                while( networkInterfaceEnumeration.hasMoreElements()){
-                    for ( InterfaceAddress interfaceAddress : networkInterfaceEnumeration.nextElement().getInterfaceAddresses())
-                        if ( interfaceAddress.getAddress().isSiteLocalAddress()) {
-                            this.notreIP = InetAddress.getByName(interfaceAddress.getAddress().getHostAddress());
-                            System.out.println("Notre @IP = " + this.notreIP.toString().substring(1));
-                        }
-
-                }
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
             while(!close) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length); //Création d'un paquet vide
                 socket.receive(packet); //En attente de récuperer un paquet (bloquant)
                 InetAddress address = packet.getAddress(); //Recuperation de l'addresse IP source du paquet UDP
                 String received = new String(packet.getData(), 0, packet.getLength()); // Conversion des datas en string
                 received += address.toString();
-                if(address.equals(this.notreIP)) //Permet de verifier que le paquet recu est pas celui que nous avons nous même émis en broadcast
+                if(address.equals(this.host.getIPv4())) //Permet de verifier que le paquet recu est pas celui que nous avons nous même émis en broadcast
                 {
                     continue;
                 }
