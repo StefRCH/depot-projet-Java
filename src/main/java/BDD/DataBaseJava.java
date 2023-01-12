@@ -36,25 +36,26 @@ public class DataBaseJava {
                 +" capacity real\n"
                 +");";
 
-        String tables="SHOW TABLES";
-
+        String tables="SELECT name FROM sqlite_schema WHERE type='table' ";
         try{
             Connection conn = DriverManager.getConnection(url);
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(tables);
             stmt.execute(sql);
+            ResultSet rs = stmt.executeQuery(tables);
+
+
+            while(rs.next()){
+                System.out.println(rs.getString("name"));
+            }
         } catch(SQLException e){
             System.out.println(e.getMessage());
         }
-
-
-
 
     }
 
     public static void main(String[] args) {
         connect();
-        addtable("TESTTABLE");
+        addtable("UserConversation");
 
     }
 }
