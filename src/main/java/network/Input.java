@@ -24,4 +24,8 @@ public class Input {
     public synchronized String getNextLine() {
         return scanner.nextLine();
     }
+
+    public synchronized void close(){
+        scanner.close();
+    }
 }

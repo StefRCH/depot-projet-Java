@@ -1,18 +1,21 @@
 package network;
 
 import user.User;
+import user.UserManager;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class TransmitterThread extends Thread {
 
     private Socket sock;
-    private User emetteur;
+    private Input scanner;
 
     public TransmitterThread(Socket sock) throws IOException {
         this.sock = sock; //On mémorise le tuyau de communication
+        this.scanner = Input.getInstance();
     }
 
     public void run() {
@@ -25,9 +28,8 @@ public class TransmitterThread extends Thread {
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
 
             while (!quit) { //Tant que le client n'a pas demandé à quitter
-                Scanner myObj = new Scanner(System.in); //Create a Scanner object
                 System.out.println("Enter your message :");
-                String message = myObj.nextLine(); //Read user input
+                String message = scanner.getNextLine(); //Read user input
                 if(message == "quit"){
                     sock.close();
                     quit = true;

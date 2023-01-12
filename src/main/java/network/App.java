@@ -9,9 +9,9 @@ import java.io.IOException;
  * Hello world!
  *
  */
-public class App
-{
-
+public class App {
+    public static int x = 0;
+    //public static final Input scanner = Input.getInstance(); //Afin de l'utiliser dans d'autres classes et le close à distance lors d'une connexion TCP
     public static void main( String[] args ) throws IOException, InterruptedException {
         //Lancement du serveur TCP pour accepter les requêtes entrantes
         TCPNetworkManager tcpNetworkManager = new TCPNetworkManager();
@@ -37,17 +37,20 @@ public class App
 
         Input scanner = userManager.getScanner();
 
+        System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
         boolean quit = false;
         while (!quit) {
-            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
-            String userPrompt = scanner.getNextLine(); //Lecture de l'entrée utilisateur;
+            String userPrompt = "";
+            if(x == 0){
+                userPrompt = scanner.getNextLine(); //Lecture de l'entrée utilisateur;
+            }
             if (userPrompt.equals("d")) {
                 userManager.sendUDPDeconnexion();
             } else if (userPrompt.equals("m")) {
                 userManager.sendUDPChangePseudo();
             } else if(userPrompt.equals("s")){
                 userManager.sendTCP();
-                quit = true;
+                x = 1;
             }
 
 

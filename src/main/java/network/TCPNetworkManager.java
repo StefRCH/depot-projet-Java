@@ -22,11 +22,13 @@ public class TCPNetworkManager extends Thread{
             System.exit (1) ;
         }
 
-        while(true){ //Sert pour avoir plusieurs clients en même temps
+        while(true){ //Sert à avoir plusieurs clients en même temps
             System.out.println("En attente de connexion...");
             try {
                 Socket service = s.accept(); //Le serveur se met en écoute, dans l'attente d'une requête client
+                System.out.println(service);
                 System.out.println("Client connecté : " + s); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
+                App.x = 1; // Pour empêcher le scanner de nous embêter durant l'échange
 
                 //Création du thread permettant d'envoyer des messages
                 TransmitterThread transmit = new TransmitterThread(service);

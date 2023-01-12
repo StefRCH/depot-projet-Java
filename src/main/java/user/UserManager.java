@@ -69,14 +69,14 @@ public class UserManager {
                 }
             }
             else if (data[0].equals("w")) { //Réception d'un message des autres users pour notifier que le pseudo existe déjà dans leur liste de contact
-                if(data[2].equals(this.users.get(0).getIpAddress())){
+                if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
                     continue;
                 }
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
                 this.sendUDPChangePseudo();
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
-                if(data[2].equals(this.users.get(0).getIpAddress())){
+                if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
                     continue;
                 }
                 else{
@@ -158,7 +158,6 @@ public class UserManager {
     }
 
     public void sendUDPConnexion() throws IOException {
-        // Create a Scanner object
         System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
         String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
         this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
