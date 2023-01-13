@@ -140,18 +140,15 @@ public class UserManager {
     public void sendTCP() throws IOException {
         //Démarrage d'une conversation
         System.out.println("Saisissez l'adresse IPv4 : ");
-        String userPrompt = scanner.getNextLine();
-        String serverAddress = userPrompt; // 10.1.5.42
+        String serverAddress = scanner.getNextLine(); // 10.1.5.42
         int port = 4000; //numéro de port du serveur
         Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
 
         // On lance les threads d'échange afin d'envoyer et recevoir des messages
-        TransmitterThread transmit = null;
-        transmit = new TransmitterThread(socket);
+        TransmitterThread transmit = new TransmitterThread(socket);
         transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
 
-        ReceiverThread runnableReceive = null;
-        Thread receive = new Thread(runnableReceive);
+        ReceiverThread receive = new ReceiverThread(socket);
         receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
         System.out.println("SUCCESS ---- Connexion établie");

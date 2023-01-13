@@ -13,7 +13,7 @@ public class TCPNetworkManager extends Thread{
         ServerSocket s = null;
 
         try {
-            s = new ServerSocket (4000,2,this.server.getIPv4());
+            s = new ServerSocket (4000);
             System.out.println("Serveur de socket créé : " + s);
         }
         catch (IOException e)
