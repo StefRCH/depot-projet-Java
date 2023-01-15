@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import userInterface.*;
 
 public class UserManager {
 
@@ -16,6 +17,10 @@ public class UserManager {
     private Input scanner;
     private InetAddress notreIP;
     //private InetAddress notreIP;
+
+    private mainSceneController mainSceneController;
+
+
 
     public UserManager () throws IOException {
 
@@ -26,7 +31,7 @@ public class UserManager {
 
     }
 
-    public void update(List<String> dataList) throws IOException {
+    public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
 
         List<String> newData =  new ArrayList<String>(dataList);
         //this.udpThread.clearData(); //Remise à 0 de la liste.
@@ -45,6 +50,7 @@ public class UserManager {
                     System.out.println(this.createUser(pseudo, ipAddress));
                     System.out.println(pseudo);
                     this.sendUDPNotification(data[2]); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
+                    this.mainSceneController.addUser(pseudo);
                 }
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
@@ -154,9 +160,7 @@ public class UserManager {
         System.out.println("SUCCESS ---- Connexion établie");
     }
 
-    public void sendUDPConnexion() throws IOException {
-        System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
-        String pseudo = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
+    public void sendUDPConnexion(String pseudo) throws IOException {
         this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
         createDatagramUDP(pseudo, "10.1.255.255", "c");
         System.out.println("Connection successful");

@@ -23,7 +23,7 @@ public class App {
 
         //Création de l'User Manager au lancement de l'application
         UserManager userManager = udpThread.getUserManager();
-        userManager.sendUDPConnexion();
+        //userManager.sendUDPConnexion();
 
 
         /*String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;

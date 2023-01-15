@@ -15,10 +15,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import user.User;
+import user.UserManager;
 
 import java.awt.*;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class mainSceneController implements Initializable,Cloneable {
@@ -32,12 +34,20 @@ public class mainSceneController implements Initializable,Cloneable {
     @FXML
     private VBox userPane;
 
-    public void addUser(ActionEvent actionEvent) throws CloneNotSupportedException {
-        Parent parent = launchGUI.getRoot();
-        this.addUserButton = (Button) parent.lookup("#addUser");
-        this.userPane = (VBox) parent.lookup("#userPane");
+    private UserManager userManager;
 
-        AnchorPane userInfo = userInfoPane();
+    private ArrayList<User> users = new ArrayList<>();
+
+    private Parent parent;
+
+
+    public void addUser(String pseudo) throws CloneNotSupportedException {
+
+        this.parent = launchGUI.getRoot();
+
+        this.userPane = (VBox) this.parent.lookup("#userPane");
+
+        AnchorPane userInfo = userInfoPane(pseudo);
 
         System.out.println(this.userPane.getChildren());
         this.userPane.getChildren().add(userInfo);
@@ -46,10 +56,12 @@ public class mainSceneController implements Initializable,Cloneable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.userManager = launchGUI.getUserManager();
+        this.users = this.userManager.getUsers();
 
     }
 
-    public AnchorPane userInfoPane()
+    public AnchorPane userInfoPane(String pseudo)
     {
         AnchorPane userInfo = new AnchorPane();
         userInfo.setMinWidth(222);
@@ -57,12 +69,12 @@ public class mainSceneController implements Initializable,Cloneable {
         userInfo.setStyle("-fx-border-color: crimson; -fx-border-width: 4;");
 
 
-        Label pseudo = new Label("");
-        pseudo.setLayoutX(76);
-        pseudo.setLayoutY(20);
-        pseudo.prefHeight(33);
-        pseudo.prefWidth(120);
-        pseudo.setText("HELLO");
+        Label pseudoLabel = new Label("");
+        pseudoLabel.setLayoutX(76);
+        pseudoLabel.setLayoutY(20);
+        pseudoLabel.prefHeight(33);
+        pseudoLabel.prefWidth(120);
+        pseudoLabel.setText(pseudo);
 
 
 
@@ -75,7 +87,7 @@ public class mainSceneController implements Initializable,Cloneable {
         avatar.setPickOnBounds(true);
         avatar.setPreserveRatio(true);
 
-        userInfo.getChildren().add(pseudo);
+        userInfo.getChildren().add(pseudoLabel);
         userInfo.getChildren().add(avatar);
 
 

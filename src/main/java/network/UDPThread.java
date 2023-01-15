@@ -48,6 +48,8 @@ public class UDPThread extends Thread {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
     }
 
