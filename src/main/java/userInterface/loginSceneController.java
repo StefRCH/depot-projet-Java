@@ -46,6 +46,7 @@ public class loginSceneController implements Initializable {
         final VBox root = (VBox) fxmlLoader.load();
         final Scene mainScene = new Scene(root);
         this.userManager.setMainSceneController(fxmlLoader.getController());
+
         launchGUI.changeScene(mainScene,pseudoField.getText(), fxmlLoader);
 
 

@@ -1,6 +1,7 @@
 package userInterface;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -50,8 +51,16 @@ public class mainSceneController implements Initializable,Cloneable {
         AnchorPane userInfo = userInfoPane(pseudo);
 
         System.out.println(this.userPane.getChildren());
-        this.userPane.getChildren().add(userInfo);
-        launchGUI.getPrimaryStage().show();
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+
+                userPane.getChildren().add(userInfo);
+            }
+        });
+
+        //launchGUI.getPrimaryStage().show();
     }
 
     public void deleteUser(String pseudo)  {

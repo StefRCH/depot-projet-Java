@@ -23,7 +23,10 @@ public class App {
 
         //Création de l'User Manager au lancement de l'application
         UserManager userManager = udpThread.getUserManager();
-        //userManager.sendUDPConnexion();
+        Input scanner = userManager.getScanner();
+        System.out.println("pseudo donne, vite");
+        String pseudo = scanner.getNextLine();
+        userManager.sendUDPConnexion(pseudo);
 
 
         /*String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
@@ -35,7 +38,7 @@ public class App {
         dgramSocket.send(outPacket); //Envoi de la notification de connexion
         dgramSocket.close(); */
 
-        Input scanner = userManager.getScanner();
+
 
         System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s, pour une belle surprise taper g");
         boolean quit = false;

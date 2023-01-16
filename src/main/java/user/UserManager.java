@@ -31,7 +31,7 @@ public class UserManager {
 
     }
 
-    public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
+    public synchronized void update(List<String> dataList) throws IOException, CloneNotSupportedException {
 
         List<String> newData =  new ArrayList<String>(dataList);
         //this.udpThread.clearData(); //Remise à 0 de la liste.
@@ -49,7 +49,7 @@ public class UserManager {
                 if(this.checkUser(pseudo, ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
                     System.out.println(this.createUser(pseudo, ipAddress));
                     System.out.println(pseudo);
-                    this.sendUDPNotification(data[2]); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
+                    this.sendUDPNotification(ipAddress.toString()); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
                     this.mainSceneController.addUser(pseudo);
                 }
             }
@@ -95,8 +95,15 @@ public class UserManager {
                 }
             }
             else if(data[0].equals("n")) { // Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
                 System.out.println(data[1]);
+                this.mainSceneController.addUser(pseudo);
+
             }
         }
     }
