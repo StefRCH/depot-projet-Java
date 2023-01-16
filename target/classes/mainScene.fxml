@@ -126,7 +126,7 @@
                            <font>
                       <Font size="18.0" fx:id="x1" />
                            </font></Label>
-                        <Button id="addUser" fx:id="addUser" layoutX="185.0" layoutY="227.0" mnemonicParsing="false" onAction="#addUser" text="addUser" />
+                        <Button id="addUser" fx:id="addUser" layoutX="185.0" layoutY="227.0" mnemonicParsing="false"  text="addUser" />
               </children>
             </AnchorPane>
           </content>

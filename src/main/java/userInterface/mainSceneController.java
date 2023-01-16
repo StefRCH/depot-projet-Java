@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -40,8 +41,7 @@ public class mainSceneController implements Initializable,Cloneable {
 
     private Parent parent;
 
-
-    public void addUser(String pseudo) throws CloneNotSupportedException {
+    public void addUser(String pseudo) {
 
         this.parent = launchGUI.getRoot();
 
@@ -53,6 +53,15 @@ public class mainSceneController implements Initializable,Cloneable {
         this.userPane.getChildren().add(userInfo);
         launchGUI.getPrimaryStage().show();
     }
+
+    public void deleteUser(String pseudo)  {
+
+        AnchorPane toRemove = (AnchorPane) this.parent.lookup(pseudo);
+        this.userPane.getChildren().remove(toRemove);
+        launchGUI.getPrimaryStage().show();
+    }
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -67,6 +76,7 @@ public class mainSceneController implements Initializable,Cloneable {
         userInfo.setMinWidth(222);
         userInfo.setMinHeight(72);
         userInfo.setStyle("-fx-border-color: crimson; -fx-border-width: 4;");
+        userInfo.setId(pseudo);
 
 
         Label pseudoLabel = new Label("");

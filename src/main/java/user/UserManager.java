@@ -205,6 +205,8 @@ public class UserManager {
         return 0;
     }
 
+    public void setMainSceneController(mainSceneController scene){ this.mainSceneController = scene; }
+
     public ArrayList<User> getUsers()
     {
         return this.users;
