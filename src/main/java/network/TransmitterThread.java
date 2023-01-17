@@ -1,12 +1,12 @@
 package network;
 
-import user.User;
-import user.UserManager;
-
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Scanner;
+
+/**
+ * Cette classe est appelée par le serveur TCP ou par l'user manager lors de l'initiation d'une conversation.
+ * C'est un thread qui correspond au canal qui nous permet de recevoir les données nous étant destinées.
+ */
 
 public class TransmitterThread extends Thread {
 
@@ -21,16 +21,12 @@ public class TransmitterThread extends Thread {
     public void run() {
         boolean quit = false;
         try {
-            /*
-            OutputStream outputStream = sock.getOutputStream();
-            PrintWriter writer = new PrintWriter(outputStream, true); //J'isole le flux de comm en sortie (serveur vers client)
-            */
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
 
             while (!quit) { //Tant que le client n'a pas demandé à quitter
                 System.out.println("Enter your message :");
                 String message = scanner.getNextLine(); //Read user input
-                if(message == "quit"){
+                if(message == "/quit"){
                     sock.close();
                     quit = true;
                 }

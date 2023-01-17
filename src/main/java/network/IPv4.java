@@ -3,9 +3,15 @@ package network;
 import java.net.*;
 import java.util.Enumeration;
 
+/**
+ * Cette classe sert à récupérer notre adresse IPv4 (et pas les autres comme IPv6, MAC, loopback, ...)
+ * Elle permet d'éviter la répétition de ce gros morceau de code dans différentes classes
+ * La création de la classe est une manière de le factoriser
+ */
 public class IPv4 {
     private InetAddress notreIP;
 
+    //Méthode qui nous retourne notre adresse IPv4
     public InetAddress getIPv4() {
         // Ce code permet de récuperer notre IPv4. Le simple getHostAddress ne fonctionne pas sur les PC de l'INSA
         try {

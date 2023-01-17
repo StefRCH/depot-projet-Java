@@ -7,6 +7,10 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cette classe correspond à celle gérant la réception et le traitement des datagrammes
+ */
+
 public class UDPThread extends Thread {
     private DatagramSocket socket; //Création du socket de réception
     private byte[] buf = new byte[256]; //Buffer permettant de récuperer le payload de l'UDP

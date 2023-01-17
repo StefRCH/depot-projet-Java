@@ -2,6 +2,9 @@ package network;
 
 import java.util.Scanner;
 
+/**
+ * Cette classe nous sert à avoir des scanners bien indépendants les uns des autres afin qu'ils ne se "s'entremêlent" pas
+ */
 public class Input {
 
     private static Input INSTANCE = null;

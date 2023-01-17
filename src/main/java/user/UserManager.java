@@ -11,16 +11,16 @@ import java.util.Enumeration;
 import java.util.List;
 import userInterface.*;
 
+/**
+ * Cette classe est celle qui nous permet d'envoyer des datagrammes mais aussi de traiter les datagrammes reçus selon leur type
+ * C'est également dans cette classe que nous gérons la liste des utilisateurs en les ajoutant, vérifiant (unicité) et en les supprimant
+ */
 public class UserManager {
 
     private ArrayList<User> users = new ArrayList<>();
     private Input scanner;
     private InetAddress notreIP;
-    //private InetAddress notreIP;
-
     private mainSceneController mainSceneController;
-
-
 
     public UserManager () throws IOException {
 
@@ -30,8 +30,7 @@ public class UserManager {
          this.scanner = Input.getInstance();
 
     }
-
-    public synchronized void update(List<String> dataList) throws IOException, CloneNotSupportedException {
+    public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
 
         List<String> newData =  new ArrayList<String>(dataList);
         //this.udpThread.clearData(); //Remise à 0 de la liste.
@@ -50,15 +49,15 @@ public class UserManager {
                     System.out.println(this.createUser(pseudo, ipAddress));
                     System.out.println(pseudo);
                     this.sendUDPNotification(ipAddress.toString()); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
-                    this.mainSceneController.addUser(pseudo);
+                    this.mainSceneController.addUser(pseudo); //ajout du nouvel utilisateur à la liste
                 }
             }
-            else if (data[0].equals("d")) { //C'est une déconnexion
-                System.out.println(this.deleteUser(data[1], ipAddress));
+            else if (data[0].equals("d")) { //Réception d'un message de déconnexion de la part d'un autre utilisateur
+                System.out.println(this.deleteUser(data[1], ipAddress)); //On le supprime donc de la liste
                 this.mainSceneController.removeUser(pseudo);
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
-                if(data[2].equals(this.users.get(0).getIpAddress())){
+                if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
                     continue;
                 }
                 else{
@@ -67,11 +66,11 @@ public class UserManager {
                             if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
                                 n.setPseudo(data[1]); //On lui met le nouveau pseudo
                                 System.out.println("SUCCESS ---- The pseudo has been changed");
-                                this.sendUDPUniquePseudo(data[2],data[1]); //On le notifie que tout est ok pour nous
+                                this.sendUDPUniquePseudo(ipAddress.toString(),data[1]); //On le notifie que tout est ok pour nous
                             }
                     }
                     else { //Si le pseudo est déjà pris
-                        this.sendUDPnotUniquePseudo(data[2]); //On notifie l'utilisateur que le pseudo est déjà pris
+                        this.sendUDPnotUniquePseudo(ipAddress.toString()); //On notifie l'utilisateur que le pseudo est déjà pris
                     }
                 }
             }
@@ -95,30 +94,21 @@ public class UserManager {
                         }
                 }
             }
-            else if(data[0].equals("n")) { // Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            else if(data[0].equals("n")) { //Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
                 System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
                 System.out.println(data[1]);
-                this.mainSceneController.addUser(pseudo);
-
             }
         }
     }
 
+    //Méthode permettant de vérifier l'unicité du pseudo choisi par l'utilisateur entrant dans le chat system
     public boolean checkUser(String pseudo, InetAddress ipAddress) throws IOException{
         for(User n : users)
             if (n.getPseudo().equals(pseudo)){
-                //String message = pseudo +ipAddress;
                 this.sendUDPnotUniquePseudo(ipAddress.toString());
-                //System.out.println("ERROR ---- The pseudo is already used.");
                 return false;
             } else {
                 this.sendUDPUniquePseudo(ipAddress.toString(),pseudo);
-                //System.out.println("SUCCESS ---- This pseudo is unique.");
             }
         return true;
     }

@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Cette classe correspond au serveur TCP qui accepte les  connexions entrantes
+ * Elle permet de run les threads "transmitter" et "receiver" correspondant aux canaux ascendants et descendants de la connexion avec un autre user
+ */
 public class TCPNetworkManager extends Thread{
     private IPv4 server;
 
@@ -13,6 +17,7 @@ public class TCPNetworkManager extends Thread{
         ServerSocket s = null;
 
         try {
+            //Assignation du port au socket du serveur
             s = new ServerSocket (4000);
             System.out.println("Serveur de socket créé : " + s);
         }
@@ -22,13 +27,12 @@ public class TCPNetworkManager extends Thread{
             System.exit (1) ;
         }
 
-        while(true){ //Sert à avoir plusieurs clients en même temps
+        while(true){ //Sert à revenir en état d'écoute après avoir accepté un client
             System.out.println("En attente de connexion...");
             try {
                 Socket service = s.accept(); //Le serveur se met en écoute, dans l'attente d'une requête client
-                System.out.println(service);
                 System.out.println("Client connecté : " + s); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
-                App.x = 1; // Pour empêcher le scanner de nous embêter durant l'échange
+                App.x = 1; // Pour bloquer le scanner de la classe App durant l'échange
 
                 //Création du thread permettant d'envoyer des messages
                 TransmitterThread transmit = new TransmitterThread(service);

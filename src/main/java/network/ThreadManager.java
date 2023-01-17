@@ -5,6 +5,11 @@ import user.User;
 
 import java.util.ArrayList;
 
+/**
+ * Cette classe correspond à celle gérant le multi-threading de l'application
+ * ELle gère les différentes conversations avec les différents utilisateurs
+ */
+
 public class ThreadManager {
     private int nbThread;
     private ArrayList<Conversation> listeConversations;
@@ -19,7 +24,7 @@ public class ThreadManager {
     }
 
     // Methode permettant de créer un message à envoyer à un utilisateur (via threadTransmitter)
-    public int createNewMessage(User user){
+    public int sendMessage(User user){
         return 0;
     }
 

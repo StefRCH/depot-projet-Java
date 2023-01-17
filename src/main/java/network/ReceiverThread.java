@@ -5,6 +5,10 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Cette classe est appelée par le serveur TCP ou par l'user manager lors de l'initiation d'une conversation.
+ * C'est un thread qui correspond au canal qui permet de faire transiter les données que l'on envoie.
+ */
 public class ReceiverThread extends Thread {
     /*private Thread thread; // contiendra le thread du client
     private Socket sock; // recevra le socket liant au client
@@ -58,16 +62,18 @@ public class ReceiverThread extends Thread {
     }
 
     public void run() {
-        boolean quit = false;
+        boolean quit = false; //Variable pour la boucle while
         try {
-            BufferedReader requete = new BufferedReader(new InputStreamReader(sock.getInputStream())); //J'isole le flux de comm en entrée (ce que l'on reçoit sur le serveur)
-            System.out.println("Prêt à recevoir des messages :)");
+            BufferedReader requete = new BufferedReader(new InputStreamReader(sock.getInputStream())); //J'isole le flux de comm en entrée (ce que l'on reçoit)
 
-            while (!quit) { //Tant que le client n'a pas demandé à quitter
+            while (!quit) { //Afin de toujours être en écoute d'un potentiel nouveau message
                 String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
 
-                SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); //Création d'un format pour l'affichage de la date et l'heure avant chaque message
+                //Formatage du message afin d'afficher la date de réception de celui-ci
+                SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
+
+                //Affichage du message reçu
                 System.out.println(s.format(date) +" ---- Message reçue : " + newMessage);
             }
         } catch(IOException e){
