@@ -91,7 +91,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
             <ScrollPane>
                <content>
@@ -117,7 +117,7 @@
             </ScrollPane>
         <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
           <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="671.0">
               <children>
                 <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" wrapText="false">
                            <textFill>
@@ -126,16 +126,12 @@
                            <font>
                       <Font size="18.0" fx:id="x1" />
                            </font></Label>
-                        <Button id="addUser" fx:id="addUser" layoutX="185.0" layoutY="227.0" mnemonicParsing="false"  text="addUser" />
+                        <Button id="logoutButton" fx:id="logoutButton" layoutX="582.0" layoutY="46.0" mnemonicParsing="false" onAction="#logout" text="Logout" />
+                        <Button id="changePseudoButton" fx:id="changePseudoButton" layoutX="526.0" layoutY="13.0" mnemonicParsing="false" onAction="#changePseudo" text="Change Pseudo" />
               </children>
             </AnchorPane>
           </content>
         </ScrollPane>
-        <AnchorPane>
-          <children>
-            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-          </children>
-        </AnchorPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">

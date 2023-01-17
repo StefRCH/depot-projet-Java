@@ -20,6 +20,7 @@ import user.User;
 import user.UserManager;
 
 import java.awt.*;
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,8 +60,6 @@ public class mainSceneController implements Initializable,Cloneable {
                 userPane.getChildren().add(userInfo);
             }
         });
-
-        //launchGUI.getPrimaryStage().show();
     }
 
     public void deleteUser(String pseudo)  {
@@ -77,6 +76,24 @@ public class mainSceneController implements Initializable,Cloneable {
         this.userManager = launchGUI.getUserManager();
         this.users = this.userManager.getUsers();
 
+    }
+
+    public void logout(ActionEvent actionEvent) {
+        try {
+            this.userManager.sendUDPDeconnexion();
+        } catch (IOException e) {
+            System.out.println("Logout failed");
+        }
+
+    }
+
+    public void removeUser(String pseudo)
+    {
+        this.userPane.getChildren().removeIf( node -> node.getId() == pseudo);
+    }
+
+    public void changePseudo(ActionEvent actionEvent) {
+        //A faire
     }
 
     public AnchorPane userInfoPane(String pseudo)
@@ -113,4 +130,6 @@ public class mainSceneController implements Initializable,Cloneable {
         return userInfo;
 
     }
+
+
 }

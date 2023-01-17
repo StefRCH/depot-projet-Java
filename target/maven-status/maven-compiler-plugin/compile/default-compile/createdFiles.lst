@@ -1,1 +1,12 @@
+user/Conversation.class
+network/IPv4.class
 userInterface/mainSceneController$1.class
+network/UDPThread.class
+userInterface/launchGUI.class
+network/Message.class
+user/User.class
+network/ThreadManager.class
+network/TCPNetworkManager.class
+network/ReceiverThread.class
+network/Input.class
+network/TransmitterThread.class

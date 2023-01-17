@@ -55,6 +55,7 @@ public class UserManager {
             }
             else if (data[0].equals("d")) { //C'est une déconnexion
                 System.out.println(this.deleteUser(data[1], ipAddress));
+                this.mainSceneController.removeUser(pseudo);
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
                 if(data[2].equals(this.users.get(0).getIpAddress())){
