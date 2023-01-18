@@ -1,27 +1,22 @@
 package userInterface;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.stage.Stage;
 import user.User;
 import user.UserManager;
 
-import java.awt.*;
 import java.io.IOException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -43,11 +38,17 @@ public class mainSceneController implements Initializable,Cloneable {
 
     private Parent parent;
 
+    @FXML
+    private AnchorPane convPane;
+
     public void addUser(String pseudo) {
 
         this.parent = launchGUI.getRoot();
 
         this.userPane = (VBox) this.parent.lookup("#userPane");
+
+        this.convPane = (AnchorPane) this.parent.lookup("#convPane");
+
 
         AnchorPane userInfo = userInfoPane(pseudo);
 
@@ -63,6 +64,7 @@ public class mainSceneController implements Initializable,Cloneable {
     }
 
     public void deleteUser(String pseudo)  {
+
 
         AnchorPane toRemove = (AnchorPane) this.parent.lookup(pseudo);
         this.userPane.getChildren().remove(toRemove);
@@ -89,11 +91,59 @@ public class mainSceneController implements Initializable,Cloneable {
 
     public void removeUser(String pseudo)
     {
-        this.userPane.getChildren().removeIf( node -> node.getId() == pseudo);
+        for (int i = 0; i < this.userPane.getChildren().size(); i++) {
+            System.out.println(this.userPane.getChildren().get(i).getId());
+        }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+
+                userPane.getChildren().removeIf( node -> node.getId().equals(pseudo));
+            }
+        });
+
     }
 
-    public void changePseudo(ActionEvent actionEvent) {
-        //A faire
+    public void  changePseudo(ActionEvent actionEvent) {
+
+        Label changePseudoLabel = new Label("Enter your new pseudo and click on validate : ");
+        changePseudoLabel.setId("changePseudoLabel");
+        changePseudoLabel.setLayoutY(580);
+        changePseudoLabel.setLayoutX(16);
+        this.convPane.getChildren().add(changePseudoLabel);
+        Button changePseudoButton = (Button) this.parent.lookup("#changePseudoButton");
+        changePseudoButton.setText("Validate");
+        changePseudoButton.setMinWidth(119);
+        changePseudoButton.setOnAction(event ->{
+
+            this.convPane.getChildren().remove(changePseudoLabel);
+            TextField inputTextField = (TextField) this.parent.lookup("#inputTextField");
+            changePseudoButton.setText("Change pseudo");
+            String newPseudo = inputTextField.getText();
+            try {
+                this.userManager.sendUDPChangePseudo(newPseudo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            inputTextField.clear();
+            inputTextField.setPromptText("Enter your message and press enter");
+            Label userPseudo = (Label) this.parent.lookup("#userPseudo");
+            userPseudo.setText(newPseudo);
+            changePseudoButton.setOnAction(this::changePseudo);
+
+
+            }
+        );
+
+
+    }
+
+    public void validatePseudo(ActionEvent actionEvent) {
+
+
+
+
+
     }
 
     public AnchorPane userInfoPane(String pseudo)

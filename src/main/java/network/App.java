@@ -37,8 +37,6 @@ public class App {
             }
             if (userPrompt.equals("d")) {
                 userManager.sendUDPDeconnexion();
-            } else if (userPrompt.equals("m")) {
-                userManager.sendUDPChangePseudo();
             } else if(userPrompt.equals("s")){
                 userManager.sendTCP();
                 x = 1;

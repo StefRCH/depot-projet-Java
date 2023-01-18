@@ -79,7 +79,7 @@ public class UserManager {
                     continue;
                 }
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
-                this.sendUDPChangePseudo();
+
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
                 if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
@@ -177,9 +177,7 @@ public class UserManager {
     }
 
     //Selection d'un nouveau pseudo et envoi en broadcast du nouveau pseudo choisi
-    public void sendUDPChangePseudo() throws IOException {
-        System.out.println("Rentrez votre nouveau pseudo : ");
-        String newPseudo = scanner.getNextLine();
+    public void sendUDPChangePseudo(String newPseudo) throws IOException {
         this.createDatagramUDP(newPseudo, "10.1.255.255", "m");
     }
 
