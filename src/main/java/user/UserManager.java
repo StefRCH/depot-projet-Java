@@ -95,8 +95,14 @@ public class UserManager {
                 }
             }
             else if(data[0].equals("n")) { //Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
-                System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
-                System.out.println(data[1]);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
+                    System.out.println(data[1]);
+                    this.mainSceneController.addUser(pseudo);
             }
         }
     }
