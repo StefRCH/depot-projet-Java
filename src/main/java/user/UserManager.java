@@ -15,12 +15,12 @@ import userInterface.*;
  * Cette classe est celle qui nous permet d'envoyer des datagrammes mais aussi de traiter les datagrammes reçus selon leur type
  * C'est également dans cette classe que nous gérons la liste des utilisateurs en les ajoutant, vérifiant (unicité) et en les supprimant
  */
-public class UserManager {
+public class UserManager implements UserObservable, GraphicObserver{
 
     private ArrayList<User> users = new ArrayList<>();
     private Input scanner;
     private InetAddress notreIP;
-    private mainSceneController mainSceneController;
+    private ArrayList observerList;
 
     public UserManager () throws IOException {
 
@@ -28,6 +28,7 @@ public class UserManager {
 
         //Fin notifications broadcast pour la connexion
          this.scanner = Input.getInstance();
+         this.observerList = new ArrayList();
 
     }
     public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
@@ -49,12 +50,12 @@ public class UserManager {
                     System.out.println(this.createUser(pseudo, ipAddress));
                     System.out.println(pseudo);
                     this.sendUDPNotification(ipAddress.toString()); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
-                    this.mainSceneController.addUser(pseudo); //ajout du nouvel utilisateur à la liste
+
                 }
             }
             else if (data[0].equals("d")) { //Réception d'un message de déconnexion de la part d'un autre utilisateur
                 System.out.println(this.deleteUser(data[1], ipAddress)); //On le supprime donc de la liste
-                this.mainSceneController.removeUser(pseudo);
+
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
                 if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
@@ -102,7 +103,7 @@ public class UserManager {
                     }
                     System.out.println(this.createUser(data[1], ipAddress)); // mise à jour de la liste d'utilisateurs en conséquence
                     System.out.println(data[1]);
-                    this.mainSceneController.addUser(pseudo);
+
             }
         }
     }
@@ -125,7 +126,7 @@ public class UserManager {
         User newUser = new User(pseudo, ipAddress); //Création d'un new user
 
         users.add(newUser); //Ajout de l'user a la liste
-
+        this.notifyObserver("add", pseudo);
         // Boucle pour parcourir la liste et vérifier que l'utilisateur a bien été ajouté
         for(User n : users)
             if (n.getPseudo().equals(newUser.getPseudo())){
@@ -138,7 +139,7 @@ public class UserManager {
     public String deleteUser(String pseudo, InetAddress ipAddress) {
 
         users.removeIf(user -> user.getPseudo().equals(pseudo) &&  user.getIpAddress().equals(ipAddress));
-
+        this.notifyObserver("remove", pseudo);
         for(User n : users)
             if (n.getPseudo().equals(pseudo)){
                 return "ERROR ---- User : " + pseudo + " with @IP = " + ipAddress + " has NOT been deleted from the list of users";
@@ -207,7 +208,7 @@ public class UserManager {
         return 0;
     }
 
-    public void setMainSceneController(mainSceneController scene){ this.mainSceneController = scene; }
+
 
     public ArrayList<User> getUsers()
     {
@@ -215,6 +216,35 @@ public class UserManager {
     }
 
     public Input getScanner() {return this.scanner; }
+
+    @Override
+    public void addObserver(UserObserver o) {
+        observerList.add(o);
+    }
+
+    @Override
+    public void removeObserver(UserObserver o) {
+        observerList.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(String action, String pseudo) {
+        for (int i = 0; i < this.observerList.size(); i++) {
+            UserObserver o = (UserObserver) observerList.get(i);
+            o.update(action, pseudo);
+        }
+    }
+
+    @Override
+    public void update(String action, String pseudo) throws IOException {
+        if(action.equals("connexion")) {
+            this.sendUDPConnexion(pseudo);
+        } else if (action.equals("deconnexion")) {
+            this.sendUDPDeconnexion();
+        } else if (action.equals("changePseudo")) {
+            this.sendUDPChangePseudo(pseudo);
+        }
+    }
 }
 
 

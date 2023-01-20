@@ -2,7 +2,6 @@ package userInterface;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -14,16 +13,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import user.User;
-import user.UserManager;
+import user.UserObserver;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class mainSceneController implements Initializable,Cloneable {
-
-
+public class MainSceneController implements Initializable,Cloneable, UserObserver, GraphicObservable {
 
     @FXML
     private Button addUserButton;
@@ -32,26 +29,19 @@ public class mainSceneController implements Initializable,Cloneable {
     @FXML
     private VBox userPane;
 
-    private UserManager userManager;
-
-    private ArrayList<User> users = new ArrayList<>();
-
     private Parent parent;
-
+    private ArrayList observerList;
     @FXML
     private AnchorPane convPane;
 
     public void addUser(String pseudo) {
 
-        this.parent = launchGUI.getRoot();
-
+        this.parent = LaunchGUI.getRoot();
         this.userPane = (VBox) this.parent.lookup("#userPane");
-
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
 
 
         AnchorPane userInfo = userInfoPane(pseudo);
-
         System.out.println(this.userPane.getChildren());
 
         Platform.runLater(new Runnable() {
@@ -68,24 +58,20 @@ public class mainSceneController implements Initializable,Cloneable {
 
         AnchorPane toRemove = (AnchorPane) this.parent.lookup(pseudo);
         this.userPane.getChildren().remove(toRemove);
-        launchGUI.getPrimaryStage().show();
+        LaunchGUI.getPrimaryStage().show();
     }
 
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.userManager = launchGUI.getUserManager();
-        this.users = this.userManager.getUsers();
+        this.observerList = new ArrayList();
+
 
     }
 
     public void logout(ActionEvent actionEvent) {
-        try {
-            this.userManager.sendUDPDeconnexion();
-        } catch (IOException e) {
-            System.out.println("Logout failed");
-        }
+        this.notifyObserver("deconnexion", "");
 
     }
 
@@ -120,11 +106,7 @@ public class mainSceneController implements Initializable,Cloneable {
             TextField inputTextField = (TextField) this.parent.lookup("#inputTextField");
             changePseudoButton.setText("Change pseudo");
             String newPseudo = inputTextField.getText();
-            try {
-                this.userManager.sendUDPChangePseudo(newPseudo);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.notifyObserver("changePseudo", newPseudo);
             inputTextField.clear();
             inputTextField.setPromptText("Enter your message and press enter");
             Label userPseudo = (Label) this.parent.lookup("#userPseudo");
@@ -161,6 +143,7 @@ public class mainSceneController implements Initializable,Cloneable {
         pseudoLabel.prefHeight(33);
         pseudoLabel.prefWidth(120);
         pseudoLabel.setText(pseudo);
+        pseudoLabel.setId(pseudo+"Label");
 
 
 
@@ -180,6 +163,40 @@ public class mainSceneController implements Initializable,Cloneable {
         return userInfo;
 
     }
+
+
+    @Override
+    public void update(String action, String pseudo) {
+        if(action.equals("add")) {
+            addUser(pseudo);
+        } else if (action.equals("remove")) {
+            removeUser(pseudo);
+        }
+    }
+
+    @Override
+    public void addObserver(GraphicObserver o) {
+        observerList.add(o);
+    }
+
+    @Override
+    public void removeObserver(GraphicObserver o) {
+        observerList.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(String action, String pseudo) {
+        for (int i = 0; i < this.observerList.size(); i++) {
+            GraphicObserver o = (GraphicObserver) observerList.get(i);
+            try {
+                o.update(action, pseudo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
 
 }

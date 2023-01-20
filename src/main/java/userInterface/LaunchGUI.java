@@ -5,14 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import network.Input;
 import network.TCPNetworkManager;
 import network.UDPThread;
 import user.UserManager;
@@ -21,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 
 
-public class launchGUI extends Application implements EventHandler<ActionEvent> {
+public class LaunchGUI extends Application implements EventHandler<ActionEvent> {
 
     @FXML
     private Button connexionButton;
@@ -33,7 +31,7 @@ public class launchGUI extends Application implements EventHandler<ActionEvent> 
     private static UserManager userManager;
     private static UDPThread udpThread;
 
-    private static mainSceneController mainSceneController;
+    private static MainSceneController mainSceneController;
     private static TCPNetworkManager tcpNetworkManager;
 
 
@@ -85,12 +83,19 @@ public class launchGUI extends Application implements EventHandler<ActionEvent> 
             userManager = udpThread.getUserManager();
 
 
+
+
+
             // Localisation du fichier FXML.
             final URL url = getClass().getResource("/logingScene.fxml");
             // Création du loader.
+
             final FXMLLoader fxmlLoader = new FXMLLoader(url);
+
             // Chargement du FXML.
             root = fxmlLoader.load();
+            LoginSceneController loginSceneController = fxmlLoader.getController();
+            loginSceneController.addObserver(userManager);
             Scene loginScene = new Scene(root);
             root = (VBox) loginScene.getRoot();
             primaryStage = stage;
@@ -109,6 +114,8 @@ public class launchGUI extends Application implements EventHandler<ActionEvent> 
         Label pseudoField = (Label) root.lookup("#userPseudo");
         pseudoField.setText(pseudo);
         mainSceneController = loader.getController();
+        mainSceneController.addObserver(userManager);
+        userManager.addObserver(mainSceneController);
 
 
     }
@@ -137,7 +144,7 @@ public class launchGUI extends Application implements EventHandler<ActionEvent> 
         return tcpNetworkManager;
     }
 
-    public static mainSceneController getMainSceneController()
+    public static MainSceneController getMainSceneController()
     {
 
         return mainSceneController;
