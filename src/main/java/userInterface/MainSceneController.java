@@ -22,8 +22,7 @@ import java.util.ResourceBundle;
 
 public class MainSceneController implements Initializable,Cloneable, UserObserver, GraphicObservable {
 
-    @FXML
-    private Button addUserButton;
+
     @FXML
     private AnchorPane userInfo;
     @FXML
@@ -33,18 +32,23 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     private ArrayList observerList;
     @FXML
     private AnchorPane convPane;
+    @FXML
+    private TextField inputTextField;
 
-    public void addUser(String pseudo) {
+    public void addUser(String pseudo) { //Méthode permettant d'ajouter un User de manière graphique
 
+        //Recuperation du root et initialisation de l'userPane et du convPane (A CHANGER DE PLACE SINON APPLI CRASH QUAND ON EST SEUL CONNECTE)
         this.parent = LaunchGUI.getRoot();
         this.userPane = (VBox) this.parent.lookup("#userPane");
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
+        this.inputTextField = (TextField) this.parent.lookup("inputTextField"); //Zone ou on ecrit
 
 
+        //Creation d'un userInfoPane grapique
         AnchorPane userInfo = userInfoPane(pseudo);
-        System.out.println(this.userPane.getChildren());
 
-        Platform.runLater(new Runnable() {
+
+        Platform.runLater(new Runnable() { //Permet d'ajouter le UserInfoPane graphiquement sans interrpompre le thread de JavaFX
             @Override
             public void run() {
 
@@ -53,34 +57,25 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         });
     }
 
-    public void deleteUser(String pseudo)  {
-
-
-        AnchorPane toRemove = (AnchorPane) this.parent.lookup(pseudo);
-        this.userPane.getChildren().remove(toRemove);
-        LaunchGUI.getPrimaryStage().show();
-    }
-
-
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.observerList = new ArrayList();
+    public void initialize(URL url, ResourceBundle resourceBundle) { //Methode qui se lance a l'initialisation de la scene
+        this.observerList = new ArrayList(); //Creation de la list d'observer
 
 
     }
 
-    public void logout(ActionEvent actionEvent) {
+    public void logout(ActionEvent actionEvent) { //Handler qui se lance quand on clique sur le bouton de deconnexion
+
+        //Notification a UserManager de la deconnexion
         this.notifyObserver("deconnexion", "");
 
     }
 
-    public void removeUser(String pseudo)
+    public void removeUser(String pseudo) //Methode appelée lors qu'un User est retiré de la liste
     {
-        for (int i = 0; i < this.userPane.getChildren().size(); i++) {
-            System.out.println(this.userPane.getChildren().get(i).getId());
-        }
-        Platform.runLater(new Runnable() {
+
+        Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on parcours la liste des userPane pour voir quel pseudo doit etre retiré (RemoveIF)
             @Override
             public void run() {
 
@@ -90,27 +85,49 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
-    public void  changePseudo(ActionEvent actionEvent) {
+    public void  changePseudo(ActionEvent actionEvent) { //Methode permettant le changement de pseudo. Se declenche quand on clique sur le bouton ChangePseudo
 
+        //Creation d'un label a afficher au dessus de la zone de texte des messages
         Label changePseudoLabel = new Label("Enter your new pseudo and click on validate : ");
         changePseudoLabel.setId("changePseudoLabel");
+
+        //Permet de le placer au bon endroit
         changePseudoLabel.setLayoutY(580);
         changePseudoLabel.setLayoutX(16);
+
+        //Ajout du label dans la convPane
         this.convPane.getChildren().add(changePseudoLabel);
+
+        //On fait en sorte qu'un bouton Validate remplace le bouton Change Pseudo
+        //On garde le meme mais on change ses propriétés
         Button changePseudoButton = (Button) this.parent.lookup("#changePseudoButton");
         changePseudoButton.setText("Validate");
         changePseudoButton.setMinWidth(119);
-        changePseudoButton.setOnAction(event ->{
 
+        //On lui définit un nouveau Handler a activer quand on clique dessus
+        changePseudoButton.setOnAction(event ->{ //S'activera quand on cliquera sur le bouton Validate
+
+            //On enleve le label qu'on vient de creer
             this.convPane.getChildren().remove(changePseudoLabel);
-            TextField inputTextField = (TextField) this.parent.lookup("#inputTextField");
+
+            //On remet le bon intitulé au bouton
             changePseudoButton.setText("Change pseudo");
-            String newPseudo = inputTextField.getText();
+
+            //On recupere ce que l'user a rentré comme pseudo
+            String newPseudo = this.inputTextField.getText();
+
+            //On notify UserManager du changement
             this.notifyObserver("changePseudo", newPseudo);
-            inputTextField.clear();
-            inputTextField.setPromptText("Enter your message and press enter");
+
+            //On clear la zone de text
+            this.inputTextField.clear();
+            this.inputTextField.setPromptText("Enter your message and press enter");
+
+            //On modifie le pseudo en haut a gauche
             Label userPseudo = (Label) this.parent.lookup("#userPseudo");
             userPseudo.setText(newPseudo);
+
+            //On remet l'handler de base au bouton changePseuo
             changePseudoButton.setOnAction(this::changePseudo);
 
 
@@ -122,21 +139,19 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     public void validatePseudo(ActionEvent actionEvent) {
 
-
-
-
-
     }
 
-    public AnchorPane userInfoPane(String pseudo)
+    public AnchorPane userInfoPane(String pseudo) //Permet de creer le "carré" graphique pour ajouter un user
     {
+
+        //On creer l'anchorpane
         AnchorPane userInfo = new AnchorPane();
         userInfo.setMinWidth(222);
         userInfo.setMinHeight(72);
         userInfo.setStyle("-fx-border-color: crimson; -fx-border-width: 4;");
-        userInfo.setId(pseudo);
+        userInfo.setId(pseudo); //Important car ca facilitera le fait de le retrouver pour le supprimer plus tard
 
-
+        //On creer le label a partir du pseudo
         Label pseudoLabel = new Label("");
         pseudoLabel.setLayoutX(76);
         pseudoLabel.setLayoutY(20);
@@ -146,7 +161,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         pseudoLabel.setId(pseudo+"Label");
 
 
-
+        //On charge l'avatar
         Image imageAvatar = new Image("/avatar.png");
         ImageView avatar = new ImageView(imageAvatar);
         avatar.setFitHeight(54);
@@ -156,10 +171,11 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         avatar.setPickOnBounds(true);
         avatar.setPreserveRatio(true);
 
+        //On imbrique les différent éléments dans l'anchorPane
         userInfo.getChildren().add(pseudoLabel);
         userInfo.getChildren().add(avatar);
 
-
+        //On retourne le tout
         return userInfo;
 
     }
@@ -167,25 +183,25 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     @Override
     public void update(String action, String pseudo) {
-        if(action.equals("add")) {
+        if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             addUser(pseudo);
         } else if (action.equals("remove")) {
-            removeUser(pseudo);
+            removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
         }
     }
 
     @Override
     public void addObserver(GraphicObserver o) {
         observerList.add(o);
-    }
+    } //Ajoute un observer
 
     @Override
     public void removeObserver(GraphicObserver o) {
         observerList.remove(o);
-    }
+    } //retire un observer
 
     @Override
-    public void notifyObserver(String action, String pseudo) {
+    public void notifyObserver(String action, String pseudo) { //Permet de notifier les observers, ici UserManager
         for (int i = 0; i < this.observerList.size(); i++) {
             GraphicObserver o = (GraphicObserver) observerList.get(i);
             try {

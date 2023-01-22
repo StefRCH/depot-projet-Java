@@ -23,7 +23,7 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
     @FXML
     private Button connexionButton;
-
+    @FXML
     private static Stage primaryStage;
     private static VBox root;
     private static Stage mainStage;
@@ -34,44 +34,20 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
     private static MainSceneController mainSceneController;
     private static TCPNetworkManager tcpNetworkManager;
 
-
-    @FXML
-    private Button addUser;
-
     @FXML
     private AnchorPane userComponent;
     public static void main(String[] args) throws IOException {
 
 
-        /*System.out.println("Bienvenue sur votre application de chat ! Entrez votre pseudo : "); //Demande le pseudo à l'utilisateur
-
-        String pseudo = myObj.nextLine();  //Lecture de l'entrée utilisateur;
-        DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket pour notifier la connection de l'utilisateur actuel
-        String message = "c/" +pseudo; //Création du payload du paquet UDP
-        InetAddress broadcast = InetAddress.getByName("127.0.0.1"); //Adresse destination !!Doit etre un broadcast !!
-        int port = 4445; //Port de destination du broadcast
-        DatagramPacket outPacket = new DatagramPacket(message.getBytes(), message.length(),broadcast, port); //Création du datagramme UDP
-        dgramSocket.send(outPacket); //Envoi de la notification de connexion
-        dgramSocket.close(); */
-        launch(args);
-        /*while (true) {
-            System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m");
-            String userPrompt = scanner.getNextLine();  //Lecture de l'entrée utilisateur;
-            if (userPrompt.equals("d")) {
-                userManager.sendUDP("d");
-            } else if (userPrompt.equals("m")) {
-                userManager.sendUDP("m");
-            } else if (userPrompt.equals("gabu")) {
-                System.out.println("C'est moi qui l'ai eu");
-            }
-        }*/
+        launch(args); //Lancement de l'interface graphique
 
     }
 
 
 
     public void start(Stage stage) throws IOException {
-            // initialize value of stage.
+
+            //Creation des différentes instances de class de notre application
             tcpNetworkManager = new TCPNetworkManager();
             tcpNetworkManager.start();
 
@@ -94,8 +70,14 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
             // Chargement du FXML.
             root = fxmlLoader.load();
+
+            //Recuperation de notre classe controller
             LoginSceneController loginSceneController = fxmlLoader.getController();
+
+            //Ajout d'un observer sur loginSceneController
             loginSceneController.addObserver(userManager);
+
+            //Lancement graphique de la scene et recuperation du noeud parent (root)
             Scene loginScene = new Scene(root);
             root = (VBox) loginScene.getRoot();
             primaryStage = stage;
@@ -105,15 +87,23 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
     public static void changeScene(Scene mainScene, String pseudo, FXMLLoader loader) throws IOException {
 
+        // Methode permettant de changer de scene entre la scene du login et la scene principale de l'application
 
-
+        //Recuperation du nouveau root
         root = (VBox) mainScene.getRoot();
+
+        //Affichage de la nouvelle scene
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
+        //Affichage de notre pseudo en haut à gauche
         Label pseudoField = (Label) root.lookup("#userPseudo");
         pseudoField.setText(pseudo);
+
+        //Recuperation de notre classe de controller
         mainSceneController = loader.getController();
+
+        //Mise en place des observer
         mainSceneController.addObserver(userManager);
         userManager.addObserver(mainSceneController);
 
@@ -123,32 +113,14 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
     public static VBox getRoot() {
         return root;
     }
-    public static void setRoot(VBox newRoot) {
-        root = newRoot;
-    }
 
 
     public static Stage getPrimaryStage() {
             return primaryStage;
     }
 
-    public static UserManager getUserManager() {
-        return userManager;
-    }
 
-    public static UDPThread getUdpThread() {
-        return udpThread;
-    }
 
-    public static TCPNetworkManager getTcpNetworkManager() {
-        return tcpNetworkManager;
-    }
-
-    public static MainSceneController getMainSceneController()
-    {
-
-        return mainSceneController;
-    }
 
     @Override
             public void handle(ActionEvent actionEvent) {

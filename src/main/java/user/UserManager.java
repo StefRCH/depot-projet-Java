@@ -218,17 +218,17 @@ public class UserManager implements UserObservable, GraphicObserver{
     public Input getScanner() {return this.scanner; }
 
     @Override
-    public void addObserver(UserObserver o) {
+    public void addObserver(UserObserver o) { //Permet d'ajouter un observer
         observerList.add(o);
     }
 
     @Override
-    public void removeObserver(UserObserver o) {
+    public void removeObserver(UserObserver o) { //Permet de retirer un Observer
         observerList.remove(o);
     }
 
     @Override
-    public void notifyObserver(String action, String pseudo) {
+    public void notifyObserver(String action, String pseudo) { //permet de notifier les observers
         for (int i = 0; i < this.observerList.size(); i++) {
             UserObserver o = (UserObserver) observerList.get(i);
             o.update(action, pseudo);
@@ -237,12 +237,12 @@ public class UserManager implements UserObservable, GraphicObserver{
 
     @Override
     public void update(String action, String pseudo) throws IOException {
-        if(action.equals("connexion")) {
+        if(action.equals("connexion")) { //Si l'observable (LoginSceneController) notify avec connexion, alors j'envoie un udp de connexion
             this.sendUDPConnexion(pseudo);
-        } else if (action.equals("deconnexion")) {
+        } else if (action.equals("deconnexion")) { //Si l'observable (MainSceneController) notify avec deconnexion, alors j'envoie un udp de deconnexion
             this.sendUDPDeconnexion();
         } else if (action.equals("changePseudo")) {
-            this.sendUDPChangePseudo(pseudo);
+            this.sendUDPChangePseudo(pseudo); //Si l'observable (MainSceneController) notify avec changePseudo, alors j'envoie un udp de changement de pseudo
         }
     }
 }
