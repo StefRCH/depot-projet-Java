@@ -110,59 +110,73 @@ public class UserManager implements UserObservable, GraphicObserver{
 
     //Méthode permettant de vérifier l'unicité du pseudo choisi par l'utilisateur entrant dans le chat system
     public boolean checkUser(String pseudo, InetAddress ipAddress) throws IOException{
-        for(User n : users)
-            if (n.getPseudo().equals(pseudo)){
-                this.sendUDPnotUniquePseudo(ipAddress.toString());
+        for(User n : users) //Boucle afin de parcourir la liste des utilisateurs
+            if (n.getPseudo().equals(pseudo)){ //On vérifie qu'il s'il le pseudo existe déjà
+                this.sendUDPnotUniquePseudo(ipAddress.toString()); //Si oui, on notifie le nouvel utilisateur que son pseudo est déjà utilisé
                 return false;
             } else {
-                this.sendUDPUniquePseudo(ipAddress.toString(),pseudo);
+                this.sendUDPUniquePseudo(ipAddress.toString(),pseudo); //Sinon, on le notifie qu'il a le droit de prendre ce pseudo
             }
         return true;
     }
 
     // Méthode permettant d'ajouter un utilisateur à la liste "users" et qui return un message confirmant l'ajout de cet utilisateur
-    public String createUser(String pseudo, InetAddress ipAddress) throws IOException {
+    public boolean createUser(String pseudo, InetAddress ipAddress) throws IOException {
         //Conversion de l'addresse IP en InetAddress
         User newUser = new User(pseudo, ipAddress); //Création d'un new user
 
-        users.add(newUser); //Ajout de l'user a la liste
+        users.add(newUser); //Ajout de l'user à la liste
         this.notifyObserver("add", pseudo);
         // Boucle pour parcourir la liste et vérifier que l'utilisateur a bien été ajouté
         for(User n : users)
-            if (n.getPseudo().equals(newUser.getPseudo())){
-                return "SUCCESS ---- User : " + newUser.getPseudo() + " with @IP = " + newUser.getIpAddress() + " has SUCCESSFULLY been added to the list of users";
+            if (n.getPseudo().equals(newUser.getPseudo())){ //Si l'on trouve une occurrence de son pseudo dans la liste
+                System.out.println("SUCCESS ---- User : " + newUser.getPseudo() + " with @IP = " + newUser.getIpAddress() + " has SUCCESSFULLY been added to the list of users");
+                return true; //Confirme que l'utilisateur a bien été ajouté
         }
-        return "ERROR ---- User : " + newUser.getPseudo() + " with @IP = " + newUser.getIpAddress() + " has NOT been added to the list of users";
+        System.out.println("ERROR ---- User : " + newUser.getPseudo() + " with @IP = " + newUser.getIpAddress() + " has NOT been added to the list of users");
+        return false; //L'utilisateur n'a pas été trouvé dans la liste
+
     }
 
     // Méthode permettant de supprimer un utilisateur de la liste "users" et return un message confirmant la suppression
-    public String deleteUser(String pseudo, InetAddress ipAddress) {
-
-        users.removeIf(user -> user.getPseudo().equals(pseudo) &&  user.getIpAddress().equals(ipAddress));
+    public boolean deleteUser(String pseudo, InetAddress ipAddress) {
+        //On supprime l'utilisateur spécifié en paramètre seulement si l'on trouve un couple correspondant dans la liste des utilisateurs
+        users.removeIf(user -> user.getPseudo().equals(pseudo) && user.getIpAddress().equals(ipAddress));
         this.notifyObserver("remove", pseudo);
-        for(User n : users)
-            if (n.getPseudo().equals(pseudo)){
-                return "ERROR ---- User : " + pseudo + " with @IP = " + ipAddress + " has NOT been deleted from the list of users";
+        for(User n : users) //Boucle pour parcourir la liste des utilisateurs
+            if (n.getPseudo().equals(pseudo)){ //On vérifie que l'utilisateurs n'apparaît plus dans la liste
+                System.out.println("ERROR ---- User : " + pseudo + " with @IP = " + ipAddress + " has NOT been deleted from the list of users");
+                return false; //Dans le cas où il apparaît
             }
-        return "SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users";
+        System.out.println("SUCCESS ---- User : " + pseudo + " with @IP = " + ipAddress + " has been deleted from the list of users");
+        return true; //Dans le cas où il a bien été supprimé
     }
 
     //Méthode pour se connecter à un serveur TCP
-    public void sendTCP() throws IOException {
+    public boolean sendTCP(String userName) throws IOException {
         //Démarrage d'une conversation
-        System.out.println("Saisissez l'adresse IPv4 : ");
-        String serverAddress = scanner.getNextLine(); // 10.1.5.42
+        //System.out.println("Avec quel utilisateur souhaitez-vous converser ?");
+        //String userName = scanner.getNextLine(); // saisie du nom de l'utilisateur
+        String userIP; //Variable pour stocker IP de l'utilisateur avec qui l'on souhaite échanger
         int port = 4000; //numéro de port du serveur
-        Socket socket = new Socket(serverAddress, port); //création du socket avec comme paramètres les variables créées ci-dessus
+        for(User n : users){
+            if (n.getPseudo().equals(userName)){
+                userIP = n.getIpAddress().toString().substring(1); //On récupère l'adresse de l'utilisateur avec lequel on souhaite échanger (adresse que l'on va utiliser pour se connecter au serveur TCP)
+                Socket socket = new Socket(userIP, port); //Création du socket avec comme paramètres les variables créées ci-dessus
 
-        // On lance les threads d'échange afin d'envoyer et recevoir des messages
-        TransmitterThread transmit = new TransmitterThread(socket);
-        transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+                // On lance les threads d'échange afin d'envoyer et recevoir des messages
+                TransmitterThread transmit = new TransmitterThread(socket);
+                transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
 
-        ReceiverThread receive = new ReceiverThread(socket);
-        receive.start(); //On lance le Thread (--> run() dans ReceiverThread
+                ReceiverThread receive = new ReceiverThread(socket);
+                receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
-        System.out.println("SUCCESS ---- Connexion établie");
+                System.out.println("SUCCESS ---- Connexion établie");
+                return true;
+            }
+            System.out.println("ERROR ---- Impossible d'établir une connexion avec cet utilisateur");
+        }
+        return false;
     }
 
     public void sendUDPConnexion(String pseudo) throws IOException {
@@ -198,14 +212,14 @@ public class UserManager implements UserObservable, GraphicObserver{
         this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
     }
 
-    public int createDatagramUDP(String pseudo, String ipAddr, String message) throws IOException {
+    public DatagramPacket createDatagramUDP(String pseudo, String ipAddr, String message) throws IOException {
         DatagramSocket dgramSocket = new DatagramSocket(); //Création d'un socket
         String payload = message + "/" + pseudo; //Création du payload
         InetAddress destination = InetAddress.getByName(ipAddr); //Adresse destination
         DatagramPacket outPacket = new DatagramPacket(payload.getBytes(), payload.length(), destination, 4445); //Création du datagramme UDP
         dgramSocket.send(outPacket); //Envoi du datagramme
         dgramSocket.close(); //Fermeture du socket
-        return 0;
+        return outPacket; //Pour test unitaire
     }
 
 

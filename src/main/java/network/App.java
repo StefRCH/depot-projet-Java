@@ -38,7 +38,9 @@ public class App {
             if (userPrompt.equals("d")) {
                 userManager.sendUDPDeconnexion();
             } else if(userPrompt.equals("s")){
-                userManager.sendTCP();
+                System.out.println("Avec qui souhaitez-vous converser ?");
+                String pseudo = scanner.getNextLine();
+                userManager.sendTCP(pseudo);
                 x = 1;
             }
         }

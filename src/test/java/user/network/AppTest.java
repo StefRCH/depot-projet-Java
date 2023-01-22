@@ -1,4 +1,4 @@
-package network;
+package user.network;
 
 import static org.junit.Assert.assertTrue;
 
