@@ -126,7 +126,7 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
 
 
     @Override
-    public void updateFromUser(String action, String pseudo) {
+    public void updateFromUser(String action, String pseudo, String oldPseudo) {
         if(action == "wrongPseudo") {
             this.pseudoCheck = false;
         } if(action == "goodPeudo") {

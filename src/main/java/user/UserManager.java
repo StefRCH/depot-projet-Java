@@ -61,19 +61,24 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
                 if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
+                    System.out.println("test");
                     continue;
                 }
                 else{
                     if(this.checkUser(data[1], ipAddress)){ //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
                         for(User n : users)  //Si c'est le cas, on parcourt la liste des users dans notre liste
                             if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
+                                String oldPseudo = n.getPseudo(); //On recupere l ancien pseudo pour le retrouver graphiquement
                                 n.setPseudo(data[1]); //On lui met le nouveau pseudo
                                 System.out.println("SUCCESS ---- The pseudo has been changed");
                                 this.sendUDPUniquePseudo(ipAddress.toString(),data[1]); //On le notifie que tout est ok pour nous
+                                this.notifyObserver("changePseudo", n.getPseudo(), oldPseudo);
+                                break;
                             }
                     }
                     else { //Si le pseudo est déjà pris
                         this.sendUDPnotUniquePseudo(ipAddress.toString()); //On notifie l'utilisateur que le pseudo est déjà pris
+
                     }
                 }
             }
@@ -82,7 +87,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
                     continue;
                 }
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
-                this.notifyObserver("wrongPseudo", null);
+                this.notifyObserver("wrongPseudo", null, null);
 
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
@@ -96,7 +101,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
                             n.setPseudo(data[1]); //On change notre pseudo par le nouveau choisi et reçu dans le paquet "g"
                             System.out.println("SUCCESS ---- Your pseudo has been changed");
                         }
-                    this.notifyObserver("goodPseudo", null);
+                    this.notifyObserver("goodPseudo", null, null);
                 }
             }
             else if(data[0].equals("n")) { //Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
@@ -130,7 +135,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
         User newUser = new User(pseudo, ipAddress); //Création d'un new user
 
         users.add(newUser); //Ajout de l'user à la liste
-        this.notifyObserver("add", pseudo);
+        this.notifyObserver("add", pseudo, null);
         // Boucle pour parcourir la liste et vérifier que l'utilisateur a bien été ajouté
         for(User n : users)
             if (n.getPseudo().equals(newUser.getPseudo())){ //Si l'on trouve une occurrence de son pseudo dans la liste
@@ -146,7 +151,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
     public boolean deleteUser(String pseudo, InetAddress ipAddress) {
         //On supprime l'utilisateur spécifié en paramètre seulement si l'on trouve un couple correspondant dans la liste des utilisateurs
         users.removeIf(user -> user.getPseudo().equals(pseudo) && user.getIpAddress().equals(ipAddress));
-        this.notifyObserver("remove", pseudo);
+        this.notifyObserver("remove", pseudo, null);
         for(User n : users) //Boucle pour parcourir la liste des utilisateurs
             if (n.getPseudo().equals(pseudo)){ //On vérifie que l'utilisateurs n'apparaît plus dans la liste
                 System.out.println("ERROR ---- User : " + pseudo + " with @IP = " + ipAddress + " has NOT been deleted from the list of users");
@@ -185,19 +190,19 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
 
     public void sendUDPConnexion(String pseudo) throws IOException {
         this.createUser(pseudo, InetAddress.getByName("127.0.0.1"));
-        createDatagramUDP(pseudo, "10.1.255.255", "c");
+        createDatagramUDP(pseudo, "255.255.255.255", "c");
         System.out.println("Connection successful");
     }
 
     public void sendUDPDeconnexion() throws IOException {
-        this.createDatagramUDP(users.get(0).getPseudo(),"10.1.255.255", "d");
+        this.createDatagramUDP(users.get(0).getPseudo(),"255.255.255.255", "d");
         System.out.println("Logout successful");
         System.exit(1);
     }
 
     //Selection d'un nouveau pseudo et envoi en broadcast du nouveau pseudo choisi
     public void sendUDPChangePseudo(String newPseudo) throws IOException {
-        this.createDatagramUDP(newPseudo, "10.1.255.255", "m");
+        this.createDatagramUDP(newPseudo, "255.255.255.255", "m");
     }
 
     //Réponse à un message "m" lorsqu'une personne a pris un pseudo déjà utilisé.
@@ -213,6 +218,11 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
 
     //Envoi de ce message pour notifier le nouvel utilisateur de notre présence afin qu'il mette sa liste d'utilisateurs à jour
     public void sendUDPNotification(String ipAddress) throws IOException {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         this.createDatagramUDP(this.users.get(0).getPseudo(), ipAddress.substring(1), "n");
     }
 
@@ -246,10 +256,10 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
     }
 
     @Override
-    public void notifyObserver(String action, String pseudo) { //permet de notifier les observers
+    public void notifyObserver(String action, String pseudo, String oldPseudo) { //permet de notifier les observers
         for (int i = 0; i < this.observerList.size(); i++) {
             UserObserver o = (UserObserver) observerList.get(i);
-            o.updateFromUser(action, pseudo);
+            o.updateFromUser(action, pseudo, oldPseudo);
         }
     }
 

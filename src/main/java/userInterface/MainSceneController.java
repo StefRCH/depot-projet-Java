@@ -41,7 +41,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         this.parent = LaunchGUI.getRoot();
         this.userPane = (VBox) this.parent.lookup("#userPane");
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
-        this.inputTextField = (TextField) this.parent.lookup("inputTextField"); //Zone ou on ecrit
+        this.inputTextField = (TextField) this.parent.lookup("#inputTextField"); //Zone ou on ecrit
 
 
         //Creation d'un userInfoPane grapique
@@ -155,7 +155,12 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
-    public void validatePseudo(ActionEvent actionEvent) {
+    public void changePseudo(String pseudo, String oldPseudo) {
+
+        Label pseudoChanged = (Label) this.parent.lookup("#" + oldPseudo+"Label"); //Recuperation de l'ancien pseudo
+        System.out.println(pseudoChanged);
+        pseudoChanged.setText(pseudo); //Mise a jour du pseudo
+        System.out.println(pseudoChanged.getText());
 
     }
 
@@ -200,11 +205,13 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
 
     @Override
-    public void updateFromUser(String action, String pseudo) {
+    public void updateFromUser(String action, String pseudo, String oldPseudo) {
         if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             addUser(pseudo);
         } else if (action.equals("remove")) {
             removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
+        } else if (action.equals("changePseudo")) {
+            this.changePseudo(pseudo, oldPseudo);
         }
     }
 
