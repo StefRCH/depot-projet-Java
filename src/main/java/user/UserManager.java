@@ -9,13 +9,15 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+import network.UDPObserver;
 import userInterface.*;
 
 /**
  * Cette classe est celle qui nous permet d'envoyer des datagrammes mais aussi de traiter les datagrammes reçus selon leur type
  * C'est également dans cette classe que nous gérons la liste des utilisateurs en les ajoutant, vérifiant (unicité) et en les supprimant
  */
-public class UserManager implements UserObservable, GraphicObserver{
+public class UserManager implements UserObservable, GraphicObserver, UDPObserver {
 
     private ArrayList<User> users = new ArrayList<>();
     private Input scanner;
@@ -80,6 +82,7 @@ public class UserManager implements UserObservable, GraphicObserver{
                     continue;
                 }
                 System.out.println("ERROR ---- Please choose another Pseudo, this one is already used");
+                this.notifyObserver("wrongPseudo", null);
 
             }
             else if (data[0].equals("g")) { //Réception d'un message des autres users pour notifier que le pseudo n'existe pas dans leur liste de contact
@@ -93,6 +96,7 @@ public class UserManager implements UserObservable, GraphicObserver{
                             n.setPseudo(data[1]); //On change notre pseudo par le nouveau choisi et reçu dans le paquet "g"
                             System.out.println("SUCCESS ---- Your pseudo has been changed");
                         }
+                    this.notifyObserver("goodPseudo", null);
                 }
             }
             else if(data[0].equals("n")) { //Réception de ce message de la part d'utilisateurs déjà présents dans le chat system
@@ -245,18 +249,31 @@ public class UserManager implements UserObservable, GraphicObserver{
     public void notifyObserver(String action, String pseudo) { //permet de notifier les observers
         for (int i = 0; i < this.observerList.size(); i++) {
             UserObserver o = (UserObserver) observerList.get(i);
-            o.update(action, pseudo);
+            o.updateFromUser(action, pseudo);
         }
     }
 
     @Override
-    public void update(String action, String pseudo) throws IOException {
+    public void updateFromGUI(String action, String pseudo) throws IOException {
         if(action.equals("connexion")) { //Si l'observable (LoginSceneController) notify avec connexion, alors j'envoie un udp de connexion
             this.sendUDPConnexion(pseudo);
         } else if (action.equals("deconnexion")) { //Si l'observable (MainSceneController) notify avec deconnexion, alors j'envoie un udp de deconnexion
             this.sendUDPDeconnexion();
         } else if (action.equals("changePseudo")) {
             this.sendUDPChangePseudo(pseudo); //Si l'observable (MainSceneController) notify avec changePseudo, alors j'envoie un udp de changement de pseudo
+        }
+    }
+
+    @Override
+    public void updateFromUDP(String action, List<String> data) {
+        if(action.equals("newData")) {
+            try {
+                this.update(data);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

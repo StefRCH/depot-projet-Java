@@ -20,27 +20,27 @@ public class App {
         udpThread.start();
 
         //Création de l'User Manager au lancement de l'application
-        UserManager userManager = udpThread.getUserManager();
-        Input scanner = userManager.getScanner(); //Scanner pour pseudo et autres input plus bas
+        //UserManager userManager = udpThread.getUserManager();
+        //Input scanner = userManager.getScanner(); //Scanner pour pseudo et autres input plus bas
 
         //Saisie du pseudo pour la première connexion à l'application
         System.out.println("Saisissez votre pseudo : ");
-        String firstPseudo = scanner.getNextLine();
-        userManager.sendUDPConnexion(firstPseudo);
+        //String firstPseudo = scanner.getNextLine();
+        //userManager.sendUDPConnexion(firstPseudo);
 
         //Boucle infinie pour les différentes fonctionnalités de base (changement de pseudo, initiation de conversation, déconnexion)
         while (true) {
             System.out.println("Pour vous deconnecter taper d, pour changer de pseudo taper m, pour initier une conversation taper s");
             String userPrompt = "";
             if(x == 0){ //Condition pour stopper le read de CE scanner lorsqu'une connexion TCP est lancée (utile seulement en ligne de commande)
-                userPrompt = scanner.getNextLine(); //Lecture de l'entrée utilisateur;
+                //userPrompt = scanner.getNextLine(); //Lecture de l'entrée utilisateur;
             }
             if (userPrompt.equals("d")) {
-                userManager.sendUDPDeconnexion();
+                //userManager.sendUDPDeconnexion();
             } else if(userPrompt.equals("s")){
                 System.out.println("Avec qui souhaitez-vous converser ?");
-                String pseudo = scanner.getNextLine();
-                userManager.sendTCP(pseudo);
+                //String pseudo = scanner.getNextLine();
+                //userManager.sendTCP(pseudo);
                 x = 1;
             }
         }

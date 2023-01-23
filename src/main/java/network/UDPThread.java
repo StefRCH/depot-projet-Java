@@ -1,6 +1,7 @@
 package network;
 
 import user.UserManager;
+import user.UserObserver;
 
 import java.io.IOException;
 import java.net.*;
@@ -11,23 +12,22 @@ import java.util.List;
  * Cette classe correspond à celle gérant la réception et le traitement des datagrammes
  */
 
-public class UDPThread extends Thread {
+public class UDPThread extends Thread implements UDPObservabe {
+
+    private ArrayList observerList;
     private DatagramSocket socket; //Création du socket de réception
     private byte[] buf = new byte[256]; //Buffer permettant de récuperer le payload de l'UDP
     private boolean close = false; //Permet de faire une boucle infinie
 
     private List<String> dataList; //Liste qui stockera l'ensemble des connexion/deconnexion/changement de pseudo
 
-    private UserManager userManager; // Crée un lien entre UDPThread et UserManager
-
     private IPv4 host;
 
     public UDPThread() throws IOException {
         this.host = new IPv4();
-        this.userManager = new UserManager();
         socket = new DatagramSocket(4445); //Création du socket sur le port 4445
         this.dataList = new ArrayList<String> (); //Création de la liste pour receptionner les datas
-
+        this.observerList = new ArrayList<>();
     }
 
     public void run(){
@@ -46,14 +46,13 @@ public class UDPThread extends Thread {
                 this.dataList.add(received); //Ajout du payload UDP dans la liste
                 System.out.println("data recue : " + this.dataList.get(0));
 
-                this.userManager.update(this.dataList);
+
+                this.notifyObserver("newData", this.dataList); //Notification a l'observer de la reception de nouvelles données
                 this.dataList.clear();
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -64,6 +63,21 @@ public class UDPThread extends Thread {
 
     public void clearData() {this.dataList.clear();} //Remise à 0 des données après les avoir récupérées
 
-    public UserManager getUserManager() { return  this.userManager; }
+    @Override
+    public void addObserver(UDPObserver o) { //Permet d'ajouter un observer
+        this.observerList.add(o);
+    }
 
+    @Override
+    public void removeObserver(UDPObserver o) { //Permet d'enlever un observer
+        this.observerList.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(String action, List<String> data) { //Permet de notfier les observers
+        for (int i = 0; i < this.observerList.size(); i++) {
+            UDPObserver o = (UDPObserver) this.observerList.get(i);
+            o.updateFromUDP(action, data);
+        }
+    }
 }

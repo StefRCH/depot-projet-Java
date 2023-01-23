@@ -83,7 +83,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane id="loginPane" fx:id="loginPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
             <Button fx:id="connexionButton" layoutX="189.0" layoutY="186.0" mnemonicParsing="false" onAction="#loginButton" prefHeight="37.0" prefWidth="262.0" text="Connexion" AnchorPane.bottomAnchor="149.0" AnchorPane.leftAnchor="189.0" AnchorPane.rightAnchor="189.0" AnchorPane.topAnchor="186.0" />
             <TextField id="pseudoField" fx:id="pseudoField" layoutX="151.0" layoutY="112.0" promptText="Pseudo">

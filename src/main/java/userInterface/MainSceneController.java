@@ -137,6 +137,24 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
+    public void wrongPseudo(String message) { //Message d erreur a afficher en cas de mauvais pseudo
+
+        Label pseudoLabel = new Label(message);
+        pseudoLabel.setLayoutX(100);
+        pseudoLabel.setLayoutY(100);
+        pseudoLabel.setId("wrongPseudo");
+
+
+        Platform.runLater(new Runnable() { //Permet d'ajouter le message graphiquement sans interrpompre le thread de JavaFX
+            @Override
+            public void run() {
+
+                convPane.getChildren().add(pseudoLabel);
+            }
+        });
+
+    }
+
     public void validatePseudo(ActionEvent actionEvent) {
 
     }
@@ -182,7 +200,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
 
     @Override
-    public void update(String action, String pseudo) {
+    public void updateFromUser(String action, String pseudo) {
         if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             addUser(pseudo);
         } else if (action.equals("remove")) {
@@ -205,7 +223,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         for (int i = 0; i < this.observerList.size(); i++) {
             GraphicObserver o = (GraphicObserver) observerList.get(i);
             try {
-                o.update(action, pseudo);
+                o.updateFromGUI(action, pseudo);
             } catch (IOException e) {
                 e.printStackTrace();
             }

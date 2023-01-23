@@ -2,7 +2,7 @@ package user;
 
 public interface UserObserver {
 
-    public void update(String action, String pseudo);
+    public void updateFromUser(String action, String pseudo);
 }
 
 

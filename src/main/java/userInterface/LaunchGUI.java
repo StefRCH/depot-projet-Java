@@ -56,9 +56,9 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
             udpThread.start();
 
             //Création de l'User Manager au lancement de l'application
-            userManager = udpThread.getUserManager();
+            userManager = new UserManager();
 
-
+            udpThread.addObserver(userManager); //Ajout de UserManager comme observer a UDPThread
 
 
 
@@ -76,6 +76,8 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
             //Ajout d'un observer sur loginSceneController
             loginSceneController.addObserver(userManager);
+            //Et inversement
+            userManager.addObserver(loginSceneController);
 
             //Lancement graphique de la scene et recuperation du noeud parent (root)
             Scene loginScene = new Scene(root);
