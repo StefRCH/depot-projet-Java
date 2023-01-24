@@ -3,15 +3,19 @@ package userInterface;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import user.User;
 import user.UserObserver;
 
@@ -34,10 +38,12 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     private AnchorPane convPane;
     @FXML
     private TextField inputTextField;
+    private boolean pseudoCheck;
 
     public void addUser(String pseudo) { //Méthode permettant d'ajouter un User de manière graphique
 
         //Recuperation du root et initialisation de l'userPane et du convPane (A CHANGER DE PLACE SINON APPLI CRASH QUAND ON EST SEUL CONNECTE)
+        this.pseudoCheck = true;
         this.parent = LaunchGUI.getRoot();
         this.userPane = (VBox) this.parent.lookup("#userPane");
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
@@ -85,6 +91,17 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
+    public void initiateConversation(MouseEvent mouseEvent) { //Methode qui permet d'initier une connexion TCP quand on clique sur quelqu'un
+
+        //On recupere le pseudo de celui sur qui on a cliqué
+        AnchorPane user = (AnchorPane) mouseEvent.getSource();
+        Label userLabel = (Label) user.getChildren().get(0);
+        String pseudo = userLabel.getText();
+
+        //On notify le TCPManager
+        this.notifyObserver("initiateConv", pseudo);
+    }
+
     public void  changePseudo(ActionEvent actionEvent) { //Methode permettant le changement de pseudo. Se declenche quand on clique sur le bouton ChangePseudo
 
         //Creation d'un label a afficher au dessus de la zone de texte des messages
@@ -110,14 +127,51 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             //On enleve le label qu'on vient de creer
             this.convPane.getChildren().remove(changePseudoLabel);
 
-            //On remet le bon intitulé au bouton
-            changePseudoButton.setText("Change pseudo");
-
             //On recupere ce que l'user a rentré comme pseudo
             String newPseudo = this.inputTextField.getText();
 
-            //On notify UserManager du changement
-            this.notifyObserver("changePseudo", newPseudo);
+
+            //Verification du pseudo
+            if(newPseudo.length() > 0 && newPseudo.length() < 21) //On test la longueur du pseudo rentré
+            {
+                try {
+                    this.notifyObserver("checkUser", newPseudo);
+                    Thread.sleep(1000); //On attend pour verifier si on recoit pas un paquet nous indiquant un mauvais pseudo
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                this.wrongPseudo("Pseudo must be at least 1 char long and under 21 char : ");
+                return;
+            }
+            System.out.println("Je suis le test " + this.pseudoCheck);
+            if (this.pseudoCheck) {
+
+                //On retire le message d'erreur s'il existe
+                Label oldLabel = (Label) this.parent.lookup("#wrongPseudo");
+                if(oldLabel != null) //On verifie qu'il n'y ai pas deja un message d erreur, si il y en a un on l'enleve
+                {
+                    Platform.runLater(new Runnable() { //Permet d'enlever le label graphiquement sans interrpompre le thread de JavaFX
+                        @Override
+                        public void run() {
+
+                            convPane.getChildren().remove(oldLabel);
+                        }
+                    });
+
+                }
+
+                //On notifie le changement de pseudo
+                this.notifyObserver("changePseudo", newPseudo); //Si tout est bon on change de pseudo
+
+            } else if (this.pseudoCheck == false) //Si on a recu un paquet W, alors le pseudo est deja utilisé
+            {
+                this.wrongPseudo("Pseudo already used. Please choose another one : ");
+                return;
+            }
+
+            //On remet le bon intitulé au bouton
+            changePseudoButton.setText("Change pseudo");
 
             //On clear la zone de text
             this.inputTextField.clear();
@@ -139,9 +193,25 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     public void wrongPseudo(String message) { //Message d erreur a afficher en cas de mauvais pseudo
 
+
+        Label oldLabel = (Label) this.parent.lookup("#wrongPseudo");
+        if(oldLabel != null) //On verifie qu'il n'y ai pas deja un message d erreur, si il y en a un on l'enleve
+        {
+            Platform.runLater(new Runnable() { //Permet d'enlever le label graphiquement sans interrpompre le thread de JavaFX
+                @Override
+                public void run() {
+
+                    convPane.getChildren().remove(oldLabel);
+                }
+            });
+
+        }
+
+
         Label pseudoLabel = new Label(message);
-        pseudoLabel.setLayoutX(100);
-        pseudoLabel.setLayoutY(100);
+        pseudoLabel.setLayoutX(16);
+        pseudoLabel.setLayoutY(580);
+        pseudoLabel.setTextFill(Color.RED);
         pseudoLabel.setId("wrongPseudo");
 
 
@@ -159,7 +229,15 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
         Label pseudoChanged = (Label) this.parent.lookup("#" + oldPseudo+"Label"); //Recuperation de l'ancien pseudo
         System.out.println(pseudoChanged);
-        pseudoChanged.setText(pseudo); //Mise a jour du pseudo
+        Platform.runLater(new Runnable() { //Permet d'ajouter le message graphiquement sans interrpompre le thread de JavaFX
+            @Override
+            public void run() {
+
+                pseudoChanged.setText(pseudo); //Mise a jour du pseudo
+                pseudoChanged.setId(pseudo+"Label");
+            }
+        });
+
         System.out.println(pseudoChanged.getText());
 
     }
@@ -198,10 +276,13 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         userInfo.getChildren().add(pseudoLabel);
         userInfo.getChildren().add(avatar);
 
+        userInfo.setOnMouseClicked(this::initiateConversation);
+
         //On retourne le tout
         return userInfo;
 
     }
+
 
 
     @Override
@@ -212,6 +293,10 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
         } else if (action.equals("changePseudo")) {
             this.changePseudo(pseudo, oldPseudo);
+        } else if(action == "wrongPseudo") {
+            this.pseudoCheck = false;
+        } else if(action == "goodPseudo") {
+            this.pseudoCheck = true;
         }
     }
 

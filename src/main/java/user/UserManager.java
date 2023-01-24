@@ -65,16 +65,22 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
                     continue;
                 }
                 else{
-                    if(this.checkUser(data[1], ipAddress)){ //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
-                        for(User n : users)  //Si c'est le cas, on parcourt la liste des users dans notre liste
-                            if (n.getIpAddress().equals(data[2])){ //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
+                    System.out.println("test1");
+                    if(this.checkUser(data[1], ipAddress)) { //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
+                        System.out.println("test2");
+                        for (User n : users) {  //Si c'est le cas, on parcourt la liste des users dans notre liste
+                            System.out.println("test3");
+                            System.out.println(n.getIpAddress());
+                            System.out.println(data[2]);
+                            if (data[2].equals(n.getIpAddress().toString().substring(1))) { //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
+                                System.out.println("test4");
                                 String oldPseudo = n.getPseudo(); //On recupere l ancien pseudo pour le retrouver graphiquement
                                 n.setPseudo(data[1]); //On lui met le nouveau pseudo
                                 System.out.println("SUCCESS ---- The pseudo has been changed");
-                                this.sendUDPUniquePseudo(ipAddress.toString(),data[1]); //On le notifie que tout est ok pour nous
+                                this.sendUDPUniquePseudo(ipAddress.toString(), data[1]); //On le notifie que tout est ok pour nous
                                 this.notifyObserver("changePseudo", n.getPseudo(), oldPseudo);
-                                break;
                             }
+                        }
                     }
                     else { //Si le pseudo est déjà pris
                         this.sendUDPnotUniquePseudo(ipAddress.toString()); //On notifie l'utilisateur que le pseudo est déjà pris
@@ -121,10 +127,12 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
     public boolean checkUser(String pseudo, InetAddress ipAddress) throws IOException{
         for(User n : users) //Boucle afin de parcourir la liste des utilisateurs
             if (n.getPseudo().equals(pseudo)){ //On vérifie qu'il s'il le pseudo existe déjà
-                this.sendUDPnotUniquePseudo(ipAddress.toString()); //Si oui, on notifie le nouvel utilisateur que son pseudo est déjà utilisé
+                if(ipAddress != null) //dans le cas ou on a pas besoin d'envoyer de paquet (On veut juste check les pseudos de notre liste)
+                    this.sendUDPnotUniquePseudo(ipAddress.toString()); //Si oui, on notifie le nouvel utilisateur que son pseudo est déjà utilisé
                 return false;
             } else {
-                this.sendUDPUniquePseudo(ipAddress.toString(),pseudo); //Sinon, on le notifie qu'il a le droit de prendre ce pseudo
+                if(ipAddress != null) //dans le cas ou on a pas besoin d'envoyer de paquet (On veut juste check les pseudos de notre liste)
+                    this.sendUDPUniquePseudo(ipAddress.toString(),pseudo); //Sinon, on le notifie qu'il a le droit de prendre ce pseudo
             }
         return true;
     }
@@ -271,6 +279,17 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
             this.sendUDPDeconnexion();
         } else if (action.equals("changePseudo")) {
             this.sendUDPChangePseudo(pseudo); //Si l'observable (MainSceneController) notify avec changePseudo, alors j'envoie un udp de changement de pseudo
+        } else if (action.equals("checkUser")) { //On verifie dans notre propre liste si ce nom est deja utilisé ou non
+
+            if(this.checkUser(pseudo, null)) //On utilise notre methode checkuser mais on envoie pas le paquet car ip = null
+            {
+                this.notifyObserver("goodPseudo", null ,null); //Si pas utilisé le pseudo est good
+            } else{
+                this.notifyObserver("wrongPseudo", null , null); //Sinon il est pas bon
+            }
+
+        } else if (action.equals("initiateConv")) {
+            this.sendTCP(pseudo);
         }
     }
 

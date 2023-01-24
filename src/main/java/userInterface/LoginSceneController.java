@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import user.UserManager;
 import user.UserObserver;
 
@@ -42,7 +43,8 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
 
         //Recuperation de notre pseudo graphique grace a son id
         TextField pseudoField = (javafx.scene.control.TextField) parent.lookup("#pseudoField");
-
+        System.out.println(pseudoField.getLength());
+        System.out.println(pseudoField.getText().length());
         //Si pseudo fait de 1 a 20 caracteres
         if(pseudoField.getText().length() > 0 && pseudoField.getText().length() < 21)
         {
@@ -53,10 +55,11 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }   else {
+        } else {
             this.wrongPseudo("Pseudo must be at least 1 char long and under 21 char : ");
+            return;
         }
-
+        System.out.println("Je suis le test " + this.pseudoCheck);
         if (this.pseudoCheck) {
             //Chargement des ressources et changement de scène
             final URL url = getClass().getResource("/mainScene.fxml");
@@ -81,11 +84,27 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
     }
 
     public void wrongPseudo(String message) { //Message d erreur a afficher en cas de mauvais pseudo
-        AnchorPane loginPane = (AnchorPane) this.parent.lookup("loginPane");
+
+
+        AnchorPane loginPane = (AnchorPane) this.parent.lookup("#loginPane");
+        Label oldLabel = (Label) this.parent.lookup("#wrongPseudo");
+        if(oldLabel != null) //On verifie qu'il n'y ai pas deja un message d erreur, si il y en a un on l'enleve
+        {
+            Platform.runLater(new Runnable() { //Permet d'enlever le label graphiquement sans interrpompre le thread de JavaFX
+                @Override
+                public void run() {
+
+                    loginPane.getChildren().remove(oldLabel);
+                }
+            });
+
+        }
+
 
         Label pseudoLabel = new Label(message);
-        pseudoLabel.setLayoutX(100);
-        pseudoLabel.setLayoutY(100);
+        pseudoLabel.setLayoutX(150);
+        pseudoLabel.setLayoutY(90);
+        pseudoLabel.setTextFill(Color.RED);
         pseudoLabel.setId("wrongPseudo");
 
 
@@ -129,7 +148,7 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
     public void updateFromUser(String action, String pseudo, String oldPseudo) {
         if(action == "wrongPseudo") {
             this.pseudoCheck = false;
-        } if(action == "goodPeudo") {
+        } if(action == "goodPseudo") {
             this.pseudoCheck = true;
         }
     }

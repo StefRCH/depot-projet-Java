@@ -38,7 +38,6 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
     private AnchorPane userComponent;
     public static void main(String[] args) throws IOException {
 
-
         launch(args); //Lancement de l'interface graphique
 
     }
