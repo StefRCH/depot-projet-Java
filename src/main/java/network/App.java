@@ -1,5 +1,6 @@
 package network;
 
+import BDD.DataBaseJava;
 import user.UserManager;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class App
             else if (userPrompt.equals("g")){
                 System.out.println("Eh belle bite !");
             }
+
         }
     }
 }
