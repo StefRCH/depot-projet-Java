@@ -148,16 +148,12 @@ public class DataBaseJava {
 
 
     public static void main(String[] args) {
-        //addtable("message","date","payload");
         //addtable("messages","date","destiname","payload");
-        //addColExt("message","ipdest","userconversation","ipdestination");
-        //Alltables();
+        Alltables();
         //delete();
         //insertCom();
-        //Allcol("messages");
+        Allcol("messages");
         selectall();
-        //Allcol("userconversation");
-        //Deletetable("message");
-        //Deletetable("userconversation");
+        //Deletetable("messages");
     }
 }

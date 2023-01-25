@@ -21,5 +21,6 @@
     <orderEntry type="library" name="Maven: org.openjfx:javafx-base:linux:19" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:19" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:linux:19" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.40.0.0" level="project" />
   </component>
 </module>
