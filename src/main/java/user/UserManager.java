@@ -251,6 +251,10 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
         return this.users;
     }
 
+    public void setUsers(ArrayList<User> users) {
+        this.users = users;
+    }
+
     public Input getScanner() {return this.scanner; }
 
     @Override
