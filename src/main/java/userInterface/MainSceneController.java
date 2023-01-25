@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import user.ConversationObserver;
 import user.User;
 import user.UserObserver;
 
@@ -24,7 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class MainSceneController implements Initializable,Cloneable, UserObserver, GraphicObservable {
+public class MainSceneController implements Initializable,Cloneable, UserObserver, GraphicObservable, ConversationObserver {
 
 
     @FXML
@@ -100,6 +102,28 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
         //On notify le TCPManager
         this.notifyObserver("initiateConv", pseudo);
+
+        this.createConvPane(pseudo);
+    }
+
+    private void createConvPane(String pseudo) {
+        ScrollPane messagePane = new ScrollPane();
+        messagePane.setLayoutX(11);
+        messagePane.setLayoutY(10);
+        messagePane.setMinWidth(960);
+        messagePane.setMinHeight(580);
+        messagePane.setId(pseudo+"ConvPane");
+
+        this.convPane.getChildren().add(messagePane);
+    }
+
+    public void messageReceived(String pseudo) {
+        if(this.convPane.lookup(pseudo+"ConvPane") != null) {
+            //Ajouter message
+        } else
+        {
+            //Faire une notif
+        }
     }
 
     public void  changePseudo(ActionEvent actionEvent) { //Methode permettant le changement de pseudo. Se declenche quand on clique sur le bouton ChangePseudo
@@ -285,20 +309,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
 
 
-    @Override
-    public void updateFromUser(String action, String pseudo, String oldPseudo) {
-        if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
-            addUser(pseudo);
-        } else if (action.equals("remove")) {
-            removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
-        } else if (action.equals("changePseudo")) {
-            this.changePseudo(pseudo, oldPseudo);
-        } else if(action == "wrongPseudo") {
-            this.pseudoCheck = false;
-        } else if(action == "goodPseudo") {
-            this.pseudoCheck = true;
-        }
-    }
+
 
     @Override
     public void addObserver(GraphicObserver o) {
@@ -322,7 +333,25 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         }
     }
 
+    @Override
+    public void updateFromUser(String action, String pseudo, String oldPseudo) {
+        if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
+            addUser(pseudo);
+        } else if (action.equals("remove")) {
+            removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
+        } else if (action.equals("changePseudo")) {
+            this.changePseudo(pseudo, oldPseudo);
+        } else if(action == "wrongPseudo") {
+            this.pseudoCheck = false;
+        } else if(action == "goodPseudo") {
+            this.pseudoCheck = true;
+        }
+    }
 
-
-
+    @Override
+    public void updateFromConv(String action, String pseudo, String data) {
+        if(action.equals("")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
+            addUser(pseudo);
+        }
+    }
 }

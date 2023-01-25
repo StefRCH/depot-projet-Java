@@ -1,0 +1,108 @@
+package user;
+
+import network.ReceiverThread;
+import network.TransmitterThread;
+import userInterface.GraphicObserver;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+
+/**
+ * Cette classe correspond à celle gérant le multi-threading de l'application
+ * ELle gère les différentes conversations avec les différents utilisateurs
+ */
+
+public class ConversationManager implements ConversationObservable, GraphicObserver {
+
+    private ArrayList<User> users;
+    private int nbThread;
+    private ArrayList<Conversation> listeConversations;
+
+    private ArrayList observerList;
+
+
+    public ConversationManager(ArrayList<User> users){
+
+        this.listeConversations = new ArrayList<>(); //Creation liste conversation
+        this.users = users; //Recupération liste users
+        this.observerList = new ArrayList();// Creation de la liste d'observer
+
+    }
+
+    // Méthode permettant de créer un thread pour la conversation avec un autre utilisateur
+    public Conversation createNewThread(User user){
+        return null;
+    }
+
+    // Methode permettant de créer un message à envoyer à un utilisateur (via threadTransmitter)
+    public int sendMessage(User user){
+        return 0;
+    }
+
+    // Méthode permettant de recevoir des messages (via threadListener)
+    public int listenMessage(){
+        return 0;
+    }
+
+    // Méthode vérifiant si un Thread existe déjà
+    public Conversation isThreadAlreadyExisting(User user, String message){
+        return null;
+    }
+
+    public int messageReceived() {
+
+        return 0;
+    }
+
+    public boolean sendTCP(String userName) throws IOException {
+        //Démarrage d'une conversation
+        //System.out.println("Avec quel utilisateur souhaitez-vous converser ?");
+        //String userName = scanner.getNextLine(); // saisie du nom de l'utilisateur
+        String userIP; //Variable pour stocker IP de l'utilisateur avec qui l'on souhaite échanger
+        int port = 4000; //numéro de port du serveur
+        for(User n : users){
+            if (n.getPseudo().equals(userName)){
+                userIP = n.getIpAddress().toString().substring(1); //On récupère l'adresse de l'utilisateur avec lequel on souhaite échanger (adresse que l'on va utiliser pour se connecter au serveur TCP)
+                Socket socket = new Socket(userIP, port); //Création du socket avec comme paramètres les variables créées ci-dessus
+
+                // On lance les threads d'échange afin d'envoyer et recevoir des messages
+                TransmitterThread transmit = new TransmitterThread(socket);
+                transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+
+                ReceiverThread receive = new ReceiverThread(socket);
+                receive.start(); //On lance le Thread (--> run() dans ReceiverThread
+
+                System.out.println("SUCCESS ---- Connexion établie");
+                return true;
+            }
+            System.out.println("ERROR ---- Impossible d'établir une connexion avec cet utilisateur");
+        }
+        return false;
+    }
+
+    @Override
+    public void addObserver(ConversationObserver o) {
+        this.observerList.add(o);
+    }
+
+    @Override
+    public void removeObserver(ConversationObserver o) {
+        this.observerList.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(String action, String pseudo, String data) {
+        for (int i = 0; i < this.observerList.size(); i++) {
+            ConversationObserver o = (ConversationObserver) observerList.get(i);
+            o.updateFromConv(action, pseudo, data);
+        }
+    }
+
+    @Override
+    public void updateFromGUI(String action, String pseudo) throws IOException {
+        if (action.equals("initiateConv")) {
+            this.sendTCP(pseudo);
+        }
+    }
+}

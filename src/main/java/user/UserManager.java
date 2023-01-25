@@ -255,12 +255,12 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
 
     @Override
     public void addObserver(UserObserver o) { //Permet d'ajouter un observer
-        observerList.add(o);
+        this.observerList.add(o);
     }
 
     @Override
     public void removeObserver(UserObserver o) { //Permet de retirer un Observer
-        observerList.remove(o);
+        this.observerList.remove(o);
     }
 
     @Override
@@ -288,8 +288,6 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
                 this.notifyObserver("wrongPseudo", null , null); //Sinon il est pas bon
             }
 
-        } else if (action.equals("initiateConv")) {
-            this.sendTCP(pseudo);
         }
     }
 

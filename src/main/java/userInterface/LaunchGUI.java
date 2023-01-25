@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import network.TCPNetworkManager;
 import network.UDPThread;
+import user.ConversationManager;
 import user.UserManager;
 
 import java.io.IOException;
@@ -33,6 +34,8 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
     private static MainSceneController mainSceneController;
     private static TCPNetworkManager tcpNetworkManager;
+
+    private static ConversationManager convManager;
 
     @FXML
     private AnchorPane userComponent;
@@ -56,8 +59,12 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
             //Création de l'User Manager au lancement de l'application
             userManager = new UserManager();
-
             udpThread.addObserver(userManager); //Ajout de UserManager comme observer a UDPThread
+
+            convManager = new ConversationManager(userManager.getUsers());
+
+
+
 
 
 
@@ -107,6 +114,10 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
         //Mise en place des observer
         mainSceneController.addObserver(userManager);
         userManager.addObserver(mainSceneController);
+
+        //Connexion des observeurs des conversations et de la GUI
+        convManager.addObserver(mainSceneController);
+        mainSceneController.addObserver(convManager);
 
 
     }
