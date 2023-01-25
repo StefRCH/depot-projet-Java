@@ -6,7 +6,7 @@ Pour résumer le cahier des charges, cette application doit permettre l'échange
 
 Afin de compiler et d'exécuter le programme, il faut exécuter la commande suivante :
 ```sh
-mvn compile && mvn -X exec:java -Dexec.mainclass="userInterface.LaunchGUI"
+mvn compile && mvn -X exec:java -Dexec.mainClass="userInterface.LaunchGUI"
 ```
 
 Ce programme ne requiert pas de fichiers externes ni de manipulations manuelles des dépendances.
