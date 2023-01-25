@@ -43,8 +43,6 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
 
         //Recuperation de notre pseudo graphique grace a son id
         TextField pseudoField = (javafx.scene.control.TextField) parent.lookup("#pseudoField");
-        System.out.println(pseudoField.getLength());
-        System.out.println(pseudoField.getText().length());
         //Si pseudo fait de 1 a 20 caracteres
         if(pseudoField.getText().length() > 0 && pseudoField.getText().length() < 21)
         {

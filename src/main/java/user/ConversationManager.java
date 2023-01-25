@@ -1,19 +1,22 @@
 package user;
 
+import network.Message;
 import network.ReceiverThread;
+import network.TCPObserver;
 import network.TransmitterThread;
 import userInterface.GraphicObserver;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Cette classe correspond à celle gérant le multi-threading de l'application
  * ELle gère les différentes conversations avec les différents utilisateurs
  */
 
-public class ConversationManager implements ConversationObservable, GraphicObserver {
+public class ConversationManager implements ConversationObservable, GraphicObserver, TCPObserver {
 
     private ArrayList<User> users;
     private int nbThread;
@@ -50,15 +53,20 @@ public class ConversationManager implements ConversationObservable, GraphicObser
         return null;
     }
 
-    public int messageReceived() {
+    public void messageReceived(String ip, Message message) {
+        for(User user : users)
+        {
+            if(user.getIpAddress().toString().substring(1).equals(ip)) //On cherche la correspondance des ip avec les users connectés pour savoir de qui vient le message
+            {
+                this.notifyObserver("newMessage", user.getPseudo(), message);
+            }
 
-        return 0;
+        }
+
     }
 
     public boolean sendTCP(String userName) throws IOException {
         //Démarrage d'une conversation
-        //System.out.println("Avec quel utilisateur souhaitez-vous converser ?");
-        //String userName = scanner.getNextLine(); // saisie du nom de l'utilisateur
         String userIP; //Variable pour stocker IP de l'utilisateur avec qui l'on souhaite échanger
         int port = 4000; //numéro de port du serveur
         for(User n : users){
@@ -72,6 +80,7 @@ public class ConversationManager implements ConversationObservable, GraphicObser
 
                 ReceiverThread receive = new ReceiverThread(socket);
                 receive.start(); //On lance le Thread (--> run() dans ReceiverThread
+                receive.addObserver(this);
 
                 System.out.println("SUCCESS ---- Connexion établie");
                 return true;
@@ -92,10 +101,10 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     }
 
     @Override
-    public void notifyObserver(String action, String pseudo, String data) {
+    public void notifyObserver(String action, String pseudo, Message message) {
         for (int i = 0; i < this.observerList.size(); i++) {
             ConversationObserver o = (ConversationObserver) observerList.get(i);
-            o.updateFromConv(action, pseudo, data);
+            o.updateFromConv(action, pseudo, message);
         }
     }
 
@@ -103,6 +112,13 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     public void updateFromGUI(String action, String pseudo) throws IOException {
         if (action.equals("initiateConv")) {
             this.sendTCP(pseudo);
+        }
+    }
+
+    @Override
+    public void updateFromTCP(String action, String ip, Message message) {
+        if(action.equals("newMessage")) {
+            this.messageReceived(ip, message);
         }
     }
 }

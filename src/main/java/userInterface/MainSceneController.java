@@ -15,8 +15,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import network.Message;
 import user.ConversationObserver;
 import user.User;
 import user.UserObserver;
@@ -114,16 +117,46 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         messagePane.setMinHeight(580);
         messagePane.setId(pseudo+"ConvPane");
 
+        FlowPane messagePane2 = new FlowPane();
+        messagePane2.setLayoutX(11);
+        messagePane2.setLayoutY(10);
+        messagePane2.setMinWidth(960);
+        messagePane2.setMinHeight(580);
+
+        messagePane.setContent(messagePane2);
+
+
+
+
         this.convPane.getChildren().add(messagePane);
     }
 
-    public void messageReceived(String pseudo) {
-        if(this.convPane.lookup(pseudo+"ConvPane") != null) {
-            //Ajouter message
+    public void messageReceived(String pseudo, Message message) {
+        System.out.println("dans messageReceived 1");
+
+        if(this.convPane.lookup("#"+pseudo+"ConvPane") != null) {
+            System.out.println("dans messageReceived 2");
+
+            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+pseudo+"ConvPane");
+            Label graphicMessage = this.createGraphicMessage(message);
+            Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+                @Override
+                public void run() {
+                    FlowPane messagePane = (FlowPane) actualMessageScrollPane.getContent();
+                    messagePane.getChildren().add(graphicMessage);
+
+                }
+            });
         } else
         {
             //Faire une notif
         }
+    }
+
+    private Label createGraphicMessage(Message message) {
+        Label graphicMessage = new Label();
+        graphicMessage.setText(message.getDate() + "\n" + message.getPayload());
+        return graphicMessage;
     }
 
     public void  changePseudo(ActionEvent actionEvent) { //Methode permettant le changement de pseudo. Se declenche quand on clique sur le bouton ChangePseudo
@@ -133,7 +166,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         changePseudoLabel.setId("changePseudoLabel");
 
         //Permet de le placer au bon endroit
-        changePseudoLabel.setLayoutY(580);
+        changePseudoLabel.setLayoutY(590);
         changePseudoLabel.setLayoutX(16);
 
         //Ajout du label dans la convPane
@@ -234,7 +267,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
         Label pseudoLabel = new Label(message);
         pseudoLabel.setLayoutX(16);
-        pseudoLabel.setLayoutY(580);
+        pseudoLabel.setLayoutY(590);
         pseudoLabel.setTextFill(Color.RED);
         pseudoLabel.setId("wrongPseudo");
 
@@ -349,9 +382,10 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
     @Override
-    public void updateFromConv(String action, String pseudo, String data) {
-        if(action.equals("")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
-            addUser(pseudo);
+    public void updateFromConv(String action, String pseudo, Message message) {
+        if(action.equals("newMessage")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
+            System.out.println("dans updatefromConv");
+            this.messageReceived(pseudo, message);
         }
     }
 }

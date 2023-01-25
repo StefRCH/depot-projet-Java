@@ -3,13 +3,15 @@ package network;
 import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Cette classe est appelée par le serveur TCP ou par l'user manager lors de l'initiation d'une conversation.
  * C'est un thread qui correspond au canal qui permet de faire transiter les données que l'on envoie.
  */
-public class ReceiverThread extends Thread {
+public class ReceiverThread extends Thread implements TCPObservable {
     /*private Thread thread; // contiendra le thread du client
     private Socket sock; // recevra le socket liant au client
     private BufferedReader in; // pour gestion du flux d'entrée
@@ -56,12 +58,15 @@ public class ReceiverThread extends Thread {
 
     }*/
     private Socket sock;
+    private ArrayList observerList;
 
     public ReceiverThread(Socket sock) {
         this.sock = sock;
+        this.observerList = new ArrayList<>();
     }
 
     public void run() {
+
         boolean quit = false; //Variable pour la boucle while
         try {
             BufferedReader requete = new BufferedReader(new InputStreamReader(sock.getInputStream())); //J'isole le flux de comm en entrée (ce que l'on reçoit)
@@ -73,11 +78,30 @@ public class ReceiverThread extends Thread {
                 SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
 
-                //Affichage du message reçu
-                System.out.println(s.format(date) +" ---- Message reçue : " + newMessage);
+                Message received = new Message(newMessage, date);
+                //On envoie au conversation manager, le nouveau message et l'IP de la personne
+                this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
             }
         } catch(IOException e){
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void addObserver(TCPObserver o) { //Permet d'ajouter un observer
+        this.observerList.add(o);
+    }
+
+    @Override
+    public void removeObserver(TCPObserver o) { //Permet d'enlever un observer
+        this.observerList.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(String action, String ip, Message message) { //Permet de notfier les observers
+        for (int i = 0; i < this.observerList.size(); i++) {
+            TCPObserver o = (TCPObserver) this.observerList.get(i);
+            o.updateFromTCP(action, ip, message);
         }
     }
 }

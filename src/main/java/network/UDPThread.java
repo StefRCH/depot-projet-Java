@@ -1,8 +1,5 @@
 package network;
 
-import user.UserManager;
-import user.UserObserver;
-
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -12,7 +9,7 @@ import java.util.List;
  * Cette classe correspond à celle gérant la réception et le traitement des datagrammes
  */
 
-public class UDPThread extends Thread implements UDPObservabe {
+public class UDPThread extends Thread implements UDPObservable {
 
     private ArrayList observerList;
     private DatagramSocket socket; //Création du socket de réception

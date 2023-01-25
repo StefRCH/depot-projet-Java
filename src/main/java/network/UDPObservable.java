@@ -1,10 +1,8 @@
 package network;
 
-import userInterface.GraphicObserver;
-
 import java.util.List;
 
-public interface UDPObservabe {
+public interface UDPObservable {
 
     // Méthode permettant d'ajouter (abonner) un observateur.
     public void addObserver(UDPObserver o);
