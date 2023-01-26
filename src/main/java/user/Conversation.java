@@ -10,13 +10,13 @@ import java.util.Map;
 
 public class Conversation {
 
-    private ReceiverThread receiverThread;
+    private Thread receiverThread;
 
-    private TransmitterThread transmitterThread;
+    private Thread transmitterThread;
     private User user;
 
     private ArrayList<Message> messageList;
-    public Conversation(ReceiverThread receiverThread, TransmitterThread transmitterThread, User user)
+    public Conversation(Thread receiverThread, Thread transmitterThread, User user)
     {
         this.receiverThread = receiverThread;
         this.transmitterThread = transmitterThread;

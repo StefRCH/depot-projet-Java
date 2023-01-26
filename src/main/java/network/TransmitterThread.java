@@ -1,5 +1,9 @@
 package network;
 
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import user.ConversationObserver;
 
 import java.io.*;
@@ -10,7 +14,7 @@ import java.net.Socket;
  * C'est un thread qui correspond au canal qui nous permet de recevoir les données nous étant destinées.
  */
 
-public class TransmitterThread extends Thread implements ConversationObserver {
+public class TransmitterThread implements ConversationObserver,Runnable {
 
     private Socket sock;
     private Input scanner;
@@ -25,17 +29,21 @@ public class TransmitterThread extends Thread implements ConversationObserver {
         this.message="";
     }
 
-    public void run() {
+     synchronized public void run() {
         boolean quit = false;
         try {
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
             while (!quit) { //Tant que le client n'a pas demandé à quitter
-                System.out.println("test2");
-
+                String message = this.message; //Read user input
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 if(this.send) {
                     System.out.println("test3");
 
-                    String message = this.message; //Read user input
+
                     if(message == "/quit"){
                         sock.close();
                         quit = true;
@@ -61,11 +69,9 @@ public class TransmitterThread extends Thread implements ConversationObserver {
         System.out.println(pseudo);
         if (action.equals("sendMessage") && sock.getInetAddress().toString().equals(pseudo)) //On verifie que l ip est la meme, si oui on envoi
         {
-
             this.message=message.getPayload(); //On definit le message
             this.send=true; //On passe la variable a true pour la boucle
             System.out.println("test");
-
         }
     }
 }

@@ -3,6 +3,7 @@ package network;
 import BDD.DataBaseJava;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 //On envoie au conversation manager, le nouveau message et l'IP de la personne
                 System.out.println(received.getPayload());
                 this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
-                DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
+                //DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
             }
         } catch(IOException e){
             e.printStackTrace();
@@ -107,5 +108,10 @@ public class ReceiverThread extends Thread implements TCPObservable {
             TCPObserver o = (TCPObserver) this.observerList.get(i);
             o.updateFromTCP(action, ip, message);
         }
+    }
+
+    @Override
+    public void notifyObserverConv(String action, Thread receiver, Thread transmit, InetAddress ip) {
+
     }
 }

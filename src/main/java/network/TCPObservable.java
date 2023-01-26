@@ -1,5 +1,6 @@
 package network;
 
+import java.net.InetAddress;
 import java.util.List;
 
 public interface TCPObservable {
@@ -10,6 +11,8 @@ public interface TCPObservable {
     public void removeObserver(TCPObserver o);
     // Méthode qui permet d'avertir tous les observateurs lors d'un changement d'état.
     public void notifyObserver(String action, String ip, Message message);
+
+    public void notifyObserverConv(String action, Thread receiver, Thread transmit, InetAddress ip);
 
 
 }

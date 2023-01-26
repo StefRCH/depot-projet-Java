@@ -179,10 +179,12 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
                 Socket socket = new Socket(userIP, port); //Création du socket avec comme paramètres les variables créées ci-dessus
 
                 // On lance les threads d'échange afin d'envoyer et recevoir des messages
-                TransmitterThread transmit = new TransmitterThread(socket);
+                TransmitterThread transmitRunnable = new TransmitterThread(socket);
+                Thread transmit = new Thread(transmitRunnable);
                 transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
 
-                ReceiverThread receive = new ReceiverThread(socket);
+                ReceiverThread receiveRunnable = new ReceiverThread(socket);
+                Thread receive = new Thread(receiveRunnable);
                 receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
                 System.out.println("SUCCESS ---- Connexion établie");

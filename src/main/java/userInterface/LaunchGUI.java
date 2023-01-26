@@ -63,6 +63,8 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
             convManager = new ConversationManager(userManager.getUsers());
 
+            tcpNetworkManager.addObserver(convManager);
+
 
 
 

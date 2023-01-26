@@ -117,9 +117,14 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
                 Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX
                     @Override
                     public void run() {
+                        try {
+                            convPane.getChildren().remove(5); //On enleve le pane de discussion actuel
+                            convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
+                        } catch (IndexOutOfBoundsException e)
+                        {
+                            convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
 
-                        convPane.getChildren().remove(5); //On enleve le pane de discussion actuel
-                        convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
+                        }
                     }
                 });
                 return;
@@ -239,7 +244,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             Message message = new Message(this.inputTextField.getText(), date);
             this.inputTextField.clear();
             this.showSendingMessage(message);
-
+            System.out.println("dans le sendMessage GUI");
             this.notifyObserver("sendMessage", this.actualPseudoConv, message);
         }
     }
@@ -490,6 +495,12 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         if(action.equals("newMessage")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             System.out.println("dans updatefromConv");
             this.messageReceived(pseudo, message);
+
+        } else if(action.equals("newConv"))
+        {
+            System.out.println("dans updatefromConv2");
+            ScrollPane conv = this.createConvPane(pseudo);
+            this.convPaneList.add(conv);
 
         }
     }
