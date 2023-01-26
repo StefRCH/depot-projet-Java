@@ -1,5 +1,7 @@
 package network;
 
+import BDD.DataBaseJava;
+
 import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -77,11 +79,12 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 //Formatage du message afin d'afficher la date de réception de celui-ci
                 SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
-
+                System.out.println("adresse IP qui a émi : "+sock.getInetAddress().toString());
                 Message received = new Message(newMessage, date);
                 //On envoie au conversation manager, le nouveau message et l'IP de la personne
                 System.out.println(received.getPayload());
                 this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
+                DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
             }
         } catch(IOException e){
             e.printStackTrace();

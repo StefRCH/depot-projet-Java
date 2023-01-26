@@ -96,7 +96,7 @@ public class DataBaseJava {
         }
     }
 
-    public static void insertCom(){
+    public static void insertCom(String ipdest,String message){
         String url ="jdbc:sqlite:messages.db";
         String sql ="INSERT INTO messages(date,destiname,payload) VALUES(?,?,?)";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -106,8 +106,8 @@ public class DataBaseJava {
             Connection conn = DriverManager.getConnection(url);
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1,ts);
-            pstmt.setString(2,"Paul");
-            pstmt.setString(3,"Au revoir.");
+            pstmt.setString(2,ipdest);
+            pstmt.setString(3,message);
             pstmt.executeUpdate();
 
         } catch(SQLException e){
@@ -134,7 +134,7 @@ public class DataBaseJava {
 
     public static void delete(){
         String url ="jdbc:sqlite:messages.db";
-        String sql ="DELETE FROM messages WHERE destiname='Paul';";
+        String sql ="DELETE FROM messages WHERE destiname='/10.1.5.44';";
         try{
             Connection conn = DriverManager.getConnection(url);
             Statement stmt = conn.createStatement();
@@ -148,12 +148,12 @@ public class DataBaseJava {
 
 
     public static void main(String[] args) {
-        //addtable("messages","date","destiname","payload");
+        //Deletetable("messages");
+        //addtable("messages","date","ipdest","payload");
         Alltables();
-        //delete();
         //insertCom();
         Allcol("messages");
         selectall();
-        //Deletetable("messages");
+
     }
 }
