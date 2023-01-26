@@ -48,6 +48,8 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     private TextField inputTextField;
     private boolean pseudoCheck;
 
+    private ArrayList<ScrollPane> convPaneList;
+
     public void addUser(String pseudo) { //Méthode permettant d'ajouter un User de manière graphique
 
         //Recuperation du root et initialisation de l'userPane et du convPane (A CHANGER DE PLACE SINON APPLI CRASH QUAND ON EST SEUL CONNECTE)
@@ -56,6 +58,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         this.userPane = (VBox) this.parent.lookup("#userPane");
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
         this.inputTextField = (TextField) this.parent.lookup("#inputTextField"); //Zone ou on ecrit
+        this.convPaneList = new ArrayList<ScrollPane>();
 
 
         //Creation d'un userInfoPane grapique
@@ -101,19 +104,47 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     public void initiateConversation(MouseEvent mouseEvent) { //Methode qui permet d'initier une connexion TCP quand on clique sur quelqu'un
 
+
         //On recupere le pseudo de celui sur qui on a cliqué
         AnchorPane user = (AnchorPane) mouseEvent.getSource();
         Label userLabel = (Label) user.getChildren().get(0);
         String pseudo = userLabel.getText();
+        this.actualPseudoConv = pseudo;
+        for(ScrollPane convIndex : convPaneList) {
+            System.out.println(convIndex.getId());
+
+            if(convIndex.getId().equals(pseudo+"ConvPane")) {
+                Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX
+                    @Override
+                    public void run() {
+
+                        convPane.getChildren().remove(5); //On enleve le pane de discussion actuel
+                        convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
+                    }
+                });
+                return;
+            }
+        }
+
 
         //On notify le TCPManager
         this.notifyObserver("initiateConv", pseudo, null);
-        this.actualPseudoConv = pseudo;
 
-        this.createConvPane(pseudo);
+
+        ScrollPane conv = this.createConvPane(pseudo);
+        this.convPaneList.add(conv);
+        Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX
+            @Override
+            public void run() {
+
+                convPane.getChildren().add(conv);
+            }
+        });
+
+
     }
 
-    private void createConvPane(String pseudo) {
+    private ScrollPane createConvPane(String pseudo) {
         ScrollPane messagePane = new ScrollPane();
         messagePane.setLayoutX(11);
         messagePane.setLayoutY(10);
@@ -131,29 +162,62 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
 
 
-
-        this.convPane.getChildren().add(messagePane);
+        return messagePane;
     }
 
     public void messageReceived(String pseudo, Message message) {
+        AnchorPane graphicMessage = this.createGraphicMessage(message);
+        HBox hBox=new HBox();
+        hBox.getChildren().add(graphicMessage);
+        hBox.setAlignment(Pos.BASELINE_LEFT);
+        if(this.convPane.lookup(pseudo+"ConvPane") != null) {
 
-        if(this.convPane.lookup("#"+pseudo+"ConvPane") != null) {
+            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup(pseudo+"ConvPane");
+            VBox messagePane = (VBox) actualMessageScrollPane.getContent();
 
-            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+pseudo+"ConvPane");
-            AnchorPane graphicMessage = this.createGraphicMessage(message);
             Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
                 @Override
                 public void run() {
-                    VBox messagePane = (VBox) actualMessageScrollPane.getContent();
-                    HBox hBox=new HBox();
-                    hBox.getChildren().add(graphicMessage);
-                    hBox.setAlignment(Pos.BASELINE_LEFT);
+
                     messagePane.getChildren().add(hBox);
                     messagePane.setSpacing(10);
 
                 }
             });
-        } else
+            return;
+        } else {
+
+           for(ScrollPane conv : convPaneList) {
+               System.out.println(conv.getId());
+               if(conv.getId().equals(pseudo+"ConvPane")) {
+                   VBox messagePane = (VBox) conv.getContent();
+                   Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+                       @Override
+                       public void run() {
+
+                           messagePane.getChildren().add(hBox);
+                           messagePane.setSpacing(10);
+
+                       }
+                   });
+                    return;
+               }
+           }
+
+            ScrollPane convPane = this.createConvPane(pseudo);
+            this.convPaneList.add(convPane);
+            VBox messagePane = (VBox) convPane.getContent();
+            Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+                @Override
+                public void run() {
+
+                    messagePane.getChildren().add(hBox);
+                    messagePane.setSpacing(10);
+
+                }
+            });
+        }
+
         {
 
             //Faire une notif
@@ -425,7 +489,6 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     public void updateFromConv(String action, String pseudo, Message message) {
         if(action.equals("newMessage")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             System.out.println("dans updatefromConv");
-            this.createConvPane(pseudo);
             this.messageReceived(pseudo, message);
 
         }

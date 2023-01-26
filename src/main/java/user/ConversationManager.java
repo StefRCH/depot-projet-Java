@@ -62,10 +62,12 @@ public class ConversationManager implements ConversationObservable, GraphicObser
 
         }
 
+
     }
     public void sendMessage(String pseudo, Message message) {
+        System.out.println(pseudo);
         for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
-
+            System.out.println(conv.getUser().getPseudo());
             if(conv.getUser().getPseudo().equals(pseudo)) {
 
                 conv.addMessage(message); //On ajoute le message a la conversation

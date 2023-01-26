@@ -30,8 +30,10 @@ public class TransmitterThread extends Thread implements ConversationObserver {
         try {
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
             while (!quit) { //Tant que le client n'a pas demandé à quitter
+                System.out.println("test2");
 
                 if(this.send) {
+                    System.out.println("test3");
 
                     String message = this.message; //Read user input
                     if(message == "/quit"){
@@ -55,12 +57,14 @@ public class TransmitterThread extends Thread implements ConversationObserver {
 
     @Override
     public void updateFromConv(String action, String pseudo, Message message) {
-
+        System.out.println(sock.getInetAddress().toString());
+        System.out.println(pseudo);
         if (action.equals("sendMessage") && sock.getInetAddress().toString().equals(pseudo)) //On verifie que l ip est la meme, si oui on envoi
         {
 
             this.message=message.getPayload(); //On definit le message
             this.send=true; //On passe la variable a true pour la boucle
+            System.out.println("test");
 
         }
     }
