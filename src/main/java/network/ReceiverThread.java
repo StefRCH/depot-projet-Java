@@ -84,7 +84,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 //On envoie au conversation manager, le nouveau message et l'IP de la personne
                 System.out.println(received.getPayload());
                 this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
-                DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
+                DataBaseJava.insertCom(sock.getLocalAddress().toString(),sock.getInetAddress().toString(),newMessage);
             }
         } catch(IOException e){
             e.printStackTrace();

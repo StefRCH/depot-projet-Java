@@ -1,5 +1,6 @@
 package network;
 
+import BDD.DataBaseJava;
 import user.ConversationObserver;
 
 import java.io.*;
@@ -42,6 +43,7 @@ public class TransmitterThread extends Thread implements ConversationObserver {
                         System.out.println(sock.getInetAddress());
 
                         flux.println(message); //Envoi du message
+                        DataBaseJava.insertCom(sock.getInetAddress().toString(),sock.getLocalAddress().toString(),message);
                         System.out.println("addresse IP qui émet :"+sock.getInetAddress().toString());
                     }
                     this.send=false;

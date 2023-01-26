@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import network.TCPNetworkManager;
 import network.UDPThread;
 import user.ConversationManager;
@@ -64,11 +65,7 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
             convManager = new ConversationManager(userManager.getUsers());
 
 
-
-
-
-
-            // Localisation du fichier FXML.
+        // Localisation du fichier FXML.
             final URL url = getClass().getResource("/logingScene.fxml");
             // Création du loader.
 
@@ -86,8 +83,11 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
             userManager.addObserver(loginSceneController);
 
             //Lancement graphique de la scene et recuperation du noeud parent (root)
+
             Scene loginScene = new Scene(root);
             root = (VBox) loginScene.getRoot();
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setTitle("Clavarder");
             primaryStage = stage;
             primaryStage.setScene(loginScene);
             primaryStage.show();
