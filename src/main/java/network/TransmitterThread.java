@@ -1,5 +1,7 @@
 package network;
 
+import user.ConversationObserver;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -8,34 +10,58 @@ import java.net.Socket;
  * C'est un thread qui correspond au canal qui nous permet de recevoir les données nous étant destinées.
  */
 
-public class TransmitterThread extends Thread {
+public class TransmitterThread extends Thread implements ConversationObserver {
 
     private Socket sock;
     private Input scanner;
 
+    private boolean send;
+
+    private String message;
+
     public TransmitterThread(Socket sock) throws IOException {
         this.sock = sock; //On mémorise le tuyau de communication
-        this.scanner = Input.getInstance();
+        this.send=false;
+        this.message="";
     }
 
     public void run() {
         boolean quit = false;
         try {
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
-
             while (!quit) { //Tant que le client n'a pas demandé à quitter
-                System.out.println("Enter your message :");
-                String message = scanner.getNextLine(); //Read user input
-                if(message == "/quit"){
-                    sock.close();
-                    quit = true;
-                }
-                else{
-                    flux.println(message); //Envoi du message
+
+                if(this.send) {
+
+                    String message = this.message; //Read user input
+                    if(message == "/quit"){
+                        sock.close();
+                        quit = true;
+                    }
+                    else{
+                        System.out.println(sock.getInetAddress());
+
+                        flux.println(message); //Envoi du message
+
+                    }
+                    this.send=false;
+
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateFromConv(String action, String pseudo, Message message) {
+
+        if (action.equals("sendMessage") && sock.getInetAddress().toString().equals(pseudo)) //On verifie que l ip est la meme, si oui on envoi
+        {
+
+            this.message=message.getPayload(); //On definit le message
+            this.send=true; //On passe la variable a true pour la boucle
+
         }
     }
 }

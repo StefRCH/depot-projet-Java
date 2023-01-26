@@ -1,8 +1,6 @@
 package user;
 
-import network.Input;
-import network.ReceiverThread;
-import network.TransmitterThread;
+import network.*;
 
 import java.io.IOException;
 import java.net.*;
@@ -10,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import network.UDPObserver;
 import userInterface.*;
 
 /**
@@ -276,7 +273,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
     }
 
     @Override
-    public void updateFromGUI(String action, String pseudo) throws IOException {
+    public void updateFromGUI(String action, String pseudo, Message message) throws IOException {
         if(action.equals("connexion")) { //Si l'observable (LoginSceneController) notify avec connexion, alors j'envoie un udp de connexion
             this.sendUDPConnexion(pseudo);
         } else if (action.equals("deconnexion")) { //Si l'observable (MainSceneController) notify avec deconnexion, alors j'envoie un udp de deconnexion

@@ -20,14 +20,14 @@ public class ConversationManager implements ConversationObservable, GraphicObser
 
     private ArrayList<User> users;
     private int nbThread;
-    private ArrayList<Conversation> listeConversations;
+    private ArrayList<Conversation> conversationList;
 
     private ArrayList observerList;
 
 
     public ConversationManager(ArrayList<User> users){
 
-        this.listeConversations = new ArrayList<>(); //Creation liste conversation
+        this.conversationList = new ArrayList<>(); //Creation liste conversation
         this.users = users; //Recupération liste users
         this.observerList = new ArrayList();// Creation de la liste d'observer
 
@@ -56,11 +56,21 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     public void messageReceived(String ip, Message message) {
         for(User user : users)
         {
-            if(user.getIpAddress().toString().substring(1).equals(ip)) //On cherche la correspondance des ip avec les users connectés pour savoir de qui vient le message
-            {
+            if(user.getIpAddress().toString().substring(1).equals(ip)) {//On cherche la correspondance des ip avec les users connectés pour savoir de qui vient le message
                 this.notifyObserver("newMessage", user.getPseudo(), message);
             }
 
+        }
+
+    }
+    public void sendMessage(String pseudo, Message message) {
+        for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
+
+            if(conv.getUser().getPseudo().equals(pseudo)) {
+
+                conv.addMessage(message); //On ajoute le message a la conversation
+                this.notifyObserver("sendMessage",conv.getUser().getIpAddress().toString(),message); //On notifie le thread emetteur, on lui envoi l ip et non pas le pseudo car il a l'IP
+            }
         }
 
     }
@@ -77,10 +87,14 @@ public class ConversationManager implements ConversationObservable, GraphicObser
                 // On lance les threads d'échange afin d'envoyer et recevoir des messages
                 TransmitterThread transmit = new TransmitterThread(socket);
                 transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+                this.addObserver(transmit);
 
                 ReceiverThread receive = new ReceiverThread(socket);
                 receive.start(); //On lance le Thread (--> run() dans ReceiverThread
                 receive.addObserver(this);
+
+                Conversation conv = new Conversation(receive, transmit, n);
+                this.conversationList.add(conv);
 
                 System.out.println("SUCCESS ---- Connexion établie");
                 return true;
@@ -109,9 +123,12 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     }
 
     @Override
-    public void updateFromGUI(String action, String pseudo) throws IOException {
+    public void updateFromGUI(String action, String pseudo, Message message) throws IOException {
         if (action.equals("initiateConv")) {
             this.sendTCP(pseudo);
+        } else if (action.equals("sendMessage"))
+        {
+            this.sendMessage(pseudo, message);
         }
     }
 

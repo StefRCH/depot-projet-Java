@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import network.Message;
 import user.UserManager;
 import user.UserObserver;
 
@@ -47,7 +48,7 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
         if(pseudoField.getText().length() > 0 && pseudoField.getText().length() < 21)
         {
             //Notification a UserManager pour envoyer un paquet de connexion
-            this.notifyObserver("connexion", pseudoField.getText());
+            this.notifyObserver("connexion", pseudoField.getText(), null);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -128,13 +129,13 @@ public class LoginSceneController implements Initializable, GraphicObservable, U
     } //Permet d'enlever un observer
 
     @Override
-    public void notifyObserver(String action, String pseudo) { //Permet de notifier les observer
+    public void notifyObserver(String action, String pseudo, Message message) { //Permet de notifier les observer
 
         //On parcours les observeurs, et on les notify un par un
         for (int i = 0; i < this.observerList.size(); i++) {
             GraphicObserver o = (GraphicObserver) observerList.get(i);
             try {
-                o.updateFromGUI(action, pseudo);
+                o.updateFromGUI(action, pseudo, message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

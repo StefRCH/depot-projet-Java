@@ -80,6 +80,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
 
                 Message received = new Message(newMessage, date);
                 //On envoie au conversation manager, le nouveau message et l'IP de la personne
+                System.out.println(received.getPayload());
                 this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
             }
         } catch(IOException e){

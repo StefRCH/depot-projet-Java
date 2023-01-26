@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,11 +14,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import network.Message;
 import user.ConversationObserver;
@@ -27,6 +27,7 @@ import user.UserObserver;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 public class MainSceneController implements Initializable,Cloneable, UserObserver, GraphicObservable, ConversationObserver {
@@ -38,6 +39,8 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     private VBox userPane;
 
     private Parent parent;
+
+    private String actualPseudoConv;
     private ArrayList observerList;
     @FXML
     private AnchorPane convPane;
@@ -79,7 +82,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     public void logout(ActionEvent actionEvent) { //Handler qui se lance quand on clique sur le bouton de deconnexion
 
         //Notification a UserManager de la deconnexion
-        this.notifyObserver("deconnexion", "");
+        this.notifyObserver("deconnexion", "", null);
 
     }
 
@@ -104,7 +107,8 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         String pseudo = userLabel.getText();
 
         //On notify le TCPManager
-        this.notifyObserver("initiateConv", pseudo);
+        this.notifyObserver("initiateConv", pseudo, null);
+        this.actualPseudoConv = pseudo;
 
         this.createConvPane(pseudo);
     }
@@ -117,13 +121,13 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         messagePane.setMinHeight(580);
         messagePane.setId(pseudo+"ConvPane");
 
-        FlowPane messagePane2 = new FlowPane();
-        messagePane2.setLayoutX(11);
-        messagePane2.setLayoutY(10);
-        messagePane2.setMinWidth(960);
-        messagePane2.setMinHeight(580);
+        VBox layoutMessage = new VBox();
+        layoutMessage.setLayoutX(11);
+        layoutMessage.setLayoutY(10);
+        layoutMessage.setMinWidth(950);
+        layoutMessage.setMinHeight(570);
 
-        messagePane.setContent(messagePane2);
+        messagePane.setContent(layoutMessage);
 
 
 
@@ -132,32 +136,68 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
     public void messageReceived(String pseudo, Message message) {
-        System.out.println("dans messageReceived 1");
 
         if(this.convPane.lookup("#"+pseudo+"ConvPane") != null) {
-            System.out.println("dans messageReceived 2");
 
             ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+pseudo+"ConvPane");
-            Label graphicMessage = this.createGraphicMessage(message);
+            AnchorPane graphicMessage = this.createGraphicMessage(message);
             Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
                 @Override
                 public void run() {
-                    FlowPane messagePane = (FlowPane) actualMessageScrollPane.getContent();
-                    messagePane.getChildren().add(graphicMessage);
+                    VBox messagePane = (VBox) actualMessageScrollPane.getContent();
+                    HBox hBox=new HBox();
+                    hBox.getChildren().add(graphicMessage);
+                    hBox.setAlignment(Pos.BASELINE_LEFT);
+                    messagePane.getChildren().add(hBox);
+                    messagePane.setSpacing(10);
 
                 }
             });
         } else
         {
+
             //Faire une notif
         }
     }
 
-    private Label createGraphicMessage(Message message) {
+    private AnchorPane createGraphicMessage(Message message) {
         Label graphicMessage = new Label();
         graphicMessage.setText(message.getDate() + "\n" + message.getPayload());
-        return graphicMessage;
+        AnchorPane messagePane = new AnchorPane();
+        messagePane.getChildren().add(graphicMessage);
+        return messagePane;
     }
+
+    public void sendMessage(KeyEvent keyEvent) {
+        if(keyEvent.getCode().equals(KeyCode.ENTER))
+        {
+            Date date = new Date();
+            Message message = new Message(this.inputTextField.getText(), date);
+            this.inputTextField.clear();
+            this.showSendingMessage(message);
+
+            this.notifyObserver("sendMessage", this.actualPseudoConv, message);
+        }
+    }
+
+    private void showSendingMessage(Message message) {
+        AnchorPane graphicMessage = this.createGraphicMessage(message);
+        graphicMessage.setLayoutX(400);
+        ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+this.actualPseudoConv+"ConvPane");
+        Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+            @Override
+            public void run() {
+                VBox messagePane = (VBox) actualMessageScrollPane.getContent();
+                HBox hBox=new HBox();
+                hBox.getChildren().add(graphicMessage);
+                hBox.setAlignment(Pos.BASELINE_LEFT);
+                messagePane.getChildren().add(hBox);
+                messagePane.setSpacing(10);
+
+            }
+        });
+    }
+
 
     public void  changePseudo(ActionEvent actionEvent) { //Methode permettant le changement de pseudo. Se declenche quand on clique sur le bouton ChangePseudo
 
@@ -192,7 +232,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             if(newPseudo.length() > 0 && newPseudo.length() < 21) //On test la longueur du pseudo rentré
             {
                 try {
-                    this.notifyObserver("checkUser", newPseudo);
+                    this.notifyObserver("checkUser", newPseudo, null);
                     Thread.sleep(1000); //On attend pour verifier si on recoit pas un paquet nous indiquant un mauvais pseudo
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -219,7 +259,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
                 }
 
                 //On notifie le changement de pseudo
-                this.notifyObserver("changePseudo", newPseudo); //Si tout est bon on change de pseudo
+                this.notifyObserver("changePseudo", newPseudo, null); //Si tout est bon on change de pseudo
 
             } else if (this.pseudoCheck == false) //Si on a recu un paquet W, alors le pseudo est deja utilisé
             {
@@ -355,11 +395,11 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     } //retire un observer
 
     @Override
-    public void notifyObserver(String action, String pseudo) { //Permet de notifier les observers, ici UserManager
+    public void notifyObserver(String action, String pseudo, Message message) { //Permet de notifier les observers, ici UserManager
         for (int i = 0; i < this.observerList.size(); i++) {
             GraphicObserver o = (GraphicObserver) observerList.get(i);
             try {
-                o.updateFromGUI(action, pseudo);
+                o.updateFromGUI(action, pseudo, message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -385,7 +425,11 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     public void updateFromConv(String action, String pseudo, Message message) {
         if(action.equals("newMessage")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             System.out.println("dans updatefromConv");
+            this.createConvPane(pseudo);
             this.messageReceived(pseudo, message);
+
         }
     }
+
+
 }

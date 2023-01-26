@@ -1,5 +1,6 @@
 package userInterface;
 
+import network.Message;
 import user.UserObserver;
 
 public interface GraphicObservable {
@@ -11,7 +12,7 @@ public interface GraphicObservable {
     // Méthode permettant de supprimer (résilier) un observateur.
     public void removeObserver(GraphicObserver o);
     // Méthode qui permet d'avertir tous les observateurs lors d'un changement d'état.
-    public void notifyObserver(String action, String pseudo);
+    public void notifyObserver(String action, String pseudo, Message message);
 
 
 
