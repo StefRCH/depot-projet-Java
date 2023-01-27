@@ -76,7 +76,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
 
             while (!quit) { //Afin de toujours être en écoute d'un potentiel nouveau message
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
