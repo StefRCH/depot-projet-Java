@@ -1,5 +1,6 @@
 package userInterface;
 
+import BDD.DataBaseJava;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,10 +23,13 @@ import javafx.scene.paint.Color;
 import network.Message;
 import user.ConversationObserver;
 import user.User;
+import user.UserManager;
 import user.UserObserver;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;

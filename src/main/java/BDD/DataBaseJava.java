@@ -1,7 +1,10 @@
 package BDD;
 
+import network.Message;
+
 import javax.swing.plaf.nimbus.State;
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class DataBaseJava {
@@ -101,7 +104,7 @@ public class DataBaseJava {
     public static void insertCom(String ipdest,String ipsrc,String message){
         String url ="jdbc:sqlite:messages.db";
         String sql ="INSERT INTO messages(date,ipdest,ipsrc,payload) VALUES(?,?,?,?)";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         String ts = sdf.format(timestamp);
         try{
@@ -135,7 +138,7 @@ public class DataBaseJava {
         }
     }
 
-    public static void selectmsgconv(String notreIP, String ipdest){
+    public static void selectconv(String notreIP, String ipdest){
         String url ="jdbc:sqlite:messages.db";
         String sql ="SELECT * FROM messages WHERE ((ipdest='"+notreIP+"') AND (ipsrc='"+ipdest+"'))OR((ipdest='"+ipdest+"') AND (ipsrc='"+notreIP+"')) ORDER BY date;";
         try{
@@ -152,11 +155,35 @@ public class DataBaseJava {
         }
     }
 
+    public static String selectMSGconv(String notreIP, String ipdest){
+        String url ="jdbc:sqlite:messages.db";
+        String sql ="SELECT payload, date, ipdest FROM messages WHERE ((ipdest='"+notreIP+"') AND (ipsrc='"+ipdest+"'))OR((ipdest='"+ipdest+"') AND (ipsrc='"+notreIP+"')) ORDER BY date;";
+        try{
+            Connection conn = DriverManager.getConnection(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            String Result = new String();
+
+            while(rs.next()){
+                //System.out.println(rs.getString("payload")+" | "+rs.getString("date"));
+                Result+=rs.getString("payload")+" | "+rs.getString("date")+" | "+rs.getString("ipdest")+"\n";
+            }
+
+            return Result;
+
+
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+
+    }
+
 
 
     public static void delete(){
         String url ="jdbc:sqlite:messages.db";
-        String sql ="DELETE FROM messages WHERE ipdest='/10.1.5.43';";
+        String sql ="DELETE FROM messages WHERE ipdest='/10.1.5.44';";
         try{
             Connection conn = DriverManager.getConnection(url);
             Statement stmt = conn.createStatement();
@@ -170,14 +197,20 @@ public class DataBaseJava {
 
 
     public static void main(String[] args) {
-        Deletetable("messages");
-        addtable("messages","date","ipdest","ipsrc","payload");
-        Alltables();
+        //Deletetable("messages");
+        //addtable("messages","date","ipdest","ipsrc","payload");
+        //Alltables();
         //delete();
         //insertCom("/10.1.5.43","/10.1.5.44","Dernier retour");
-        Allcol("messages");
-        selectallbydate();
-        //selectmsgconv("/10.1.5.43","/10.1.5.44");
+        //Allcol("messages");
+        //selectallbydate();
+        //selectMSGconv("/10.1.5.43","/10.1.5.44");
 
+        String Resultquery = selectMSGconv("/10.1.5.43", "/10.1.5.44");
+        //System.out.println(Resultquery);
+        String[] firstdecomp = Resultquery.split("\n");
+        for (String word : firstdecomp) {
+            System.out.println(word);
+        }
     }
 }
