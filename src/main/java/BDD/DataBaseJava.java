@@ -170,13 +170,13 @@ public class DataBaseJava {
 
 
     public static void main(String[] args) {
-        //Deletetable("messages");
-        //addtable("messages","date","ipdest","ipsrc","payload");
+        Deletetable("messages");
+        addtable("messages","date","ipdest","ipsrc","payload");
         Alltables();
         //delete();
         //insertCom("/10.1.5.43","/10.1.5.44","Dernier retour");
         Allcol("messages");
-        //selectallbydate();
+        selectallbydate();
         //selectmsgconv("/10.1.5.43","/10.1.5.44");
 
     }
