@@ -82,6 +82,11 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 }
 
                 String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
+                try {
+                    sleep(150);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(newMessage == null || newMessage.equals(""))
                     continue;
                 //Formatage du message afin d'afficher la date de réception de celui-ci
