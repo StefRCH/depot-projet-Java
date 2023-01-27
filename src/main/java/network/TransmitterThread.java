@@ -1,5 +1,6 @@
 package network;
 
+import BDD.DataBaseJava;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -61,6 +62,7 @@ public class TransmitterThread implements ConversationObserver,Runnable {
 
                         flux.println(message); //Envoi du message
                         flux.flush();
+                        DataBaseJava.insertCom(sock.getInetAddress().toString(),sock.getLocalAddress().toString(),message);
                         System.out.println("addresse IP qui émet :"+sock.getInetAddress().toString());
                     }
                     this.send=false;
