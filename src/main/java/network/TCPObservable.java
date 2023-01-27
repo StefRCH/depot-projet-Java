@@ -12,7 +12,7 @@ public interface TCPObservable {
     // Méthode qui permet d'avertir tous les observateurs lors d'un changement d'état.
     public void notifyObserver(String action, String ip, Message message);
 
-    public void notifyObserverConv(String action, Thread receiver, Thread transmit, InetAddress ip);
+    public void notifyObserverConv(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip);
 
 
 }

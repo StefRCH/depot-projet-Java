@@ -75,8 +75,15 @@ public class ReceiverThread extends Thread implements TCPObservable {
             BufferedReader requete = new BufferedReader(new InputStreamReader(sock.getInputStream())); //J'isole le flux de comm en entrée (ce que l'on reçoit)
 
             while (!quit) { //Afin de toujours être en écoute d'un potentiel nouveau message
-                String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
 
+                String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
+                if(newMessage == null || newMessage.equals(""))
+                    continue;
                 //Formatage du message afin d'afficher la date de réception de celui-ci
                 SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
@@ -85,7 +92,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 //On envoie au conversation manager, le nouveau message et l'IP de la personne
                 System.out.println(received.getPayload());
                 this.notifyObserver("newMessage", sock.getInetAddress().toString().substring(1), received);
-                //DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
+                DataBaseJava.insertCom(sock.getInetAddress().toString(),newMessage);
             }
         } catch(IOException e){
             e.printStackTrace();
@@ -111,7 +118,7 @@ public class ReceiverThread extends Thread implements TCPObservable {
     }
 
     @Override
-    public void notifyObserverConv(String action, Thread receiver, Thread transmit, InetAddress ip) {
+    public void notifyObserverConv(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) {
 
     }
 }

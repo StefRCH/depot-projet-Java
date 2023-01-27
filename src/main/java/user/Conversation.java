@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class Conversation {
 
+
+
     private Thread receiverThread;
 
     private Thread transmitterThread;
@@ -31,4 +33,17 @@ public class Conversation {
     public User getUser() {
         return this.user;
     }
+
+    public Thread getReceiverThread() {
+        return receiverThread;
+    }
+
+    public Thread getTransmitterThread() {
+        return transmitterThread;
+    }
+
+    public ArrayList<Message> getMessageList() {
+        return messageList;
+    }
+
 }

@@ -80,6 +80,19 @@ public class ConversationManager implements ConversationObservable, GraphicObser
         }
 
     }
+    private void deconnexionUser(String pseudo) {
+        for(Conversation conv : conversationList) {
+            if (conv.getUser().getPseudo().equals(pseudo)) {
+                try {
+                    conv.getTransmitterThread().interrupt();
+                    conv.getReceiverThread().interrupt();
+                } catch (Exception e) {
+                    System.out.println("Intteruption thread");
+                }
+            }
+        }
+        this.conversationList.removeIf(user -> user.getUser().getPseudo().equals(pseudo));
+    }
 
     public boolean sendTCP(String userName) throws IOException {
         //Démarrage d'une conversation
@@ -140,8 +153,21 @@ public class ConversationManager implements ConversationObservable, GraphicObser
         } else if (action.equals("sendMessage")) {
             System.out.println("dans le updateFromGui");
             this.sendMessage(pseudo, message);
+        } else if (action.equals("deconnexionConv")) { //Si l'observable (MainSceneController) notify avec deconnexion, alors j'envoie un udp de deconnexion
+            /*for (Conversation conversation : conversationList) {
+                try {
+                    conversation.getTransmitterThread().interrupt();
+                    conversation.getReceiverThread().interrupt();
+                } catch (Exception e) {
+                    System.out.println("Intteruption thread");
+                }
+            }*/
+        } else if (action.equals("deconnexionUser")) {
+            this.deconnexionUser(pseudo);
         }
     }
+
+
 
     @Override
     public void updateFromTCP(String action, String ip, Message message) {
@@ -153,14 +179,24 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     }
 
     @Override
-    public void updateFromTCPManager(String action, Thread receiver, Thread transmit, InetAddress ip) {
+    public void updateFromTCPManager(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) {
         System.out.println("Dans updatefromtcpmanager");
         for (User n : users) {
             if (n.getIpAddress().equals(ip)) {
+                this.addObserver(transmitRunnable);
+                Thread transmit = new Thread(transmitRunnable);
+                transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+
+                receiveRunnable.addObserver(this);
+                Thread receive = new Thread(receiveRunnable);
+                receive.start(); //On lance le Thread (--> run() dans ReceiverThread
+
+
                 System.out.println("Dans updatefromtcpmanager2");
 
-                Conversation conv = new Conversation(receiver, transmit, n);
+                Conversation conv = new Conversation(receive, transmit, n);
                 this.conversationList.add(conv);
+
 
                 System.out.println("SUCCESS ---- Connexion établie");
                 this.notifyObserver("newConv", n.getPseudo(), null );

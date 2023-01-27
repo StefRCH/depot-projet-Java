@@ -47,15 +47,13 @@ public class TCPNetworkManager extends Thread implements TCPObservable {
 
                 //Création du thread permettant d'envoyer des messages
                 TransmitterThread transmitRunnable = new TransmitterThread(service);
-                Thread transmit = new Thread(transmitRunnable);
-                transmit.start(); //On lance le Thread (--> run() dans TransmitterThread)
+
 
                 //Création du thread permettant de recevoir des messages
                 ReceiverThread receiveRunnable = new ReceiverThread(service);
-                Thread receive = new Thread(receiveRunnable);
-                receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
-                this.notifyObserverConv("newConv", receive, transmit, service.getInetAddress());
+
+                this.notifyObserverConv("newConv", receiveRunnable, transmitRunnable, service.getInetAddress());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -82,10 +80,10 @@ public class TCPNetworkManager extends Thread implements TCPObservable {
     }
 
     @Override
-    public void notifyObserverConv(String action, Thread receiver, Thread transmitter, InetAddress ip) { //Permet de notfier les observers
+    public void notifyObserverConv(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) { //Permet de notfier les observers
         for (int i = 0; i < this.observerList.size(); i++) {
             TCPObserver o = (TCPObserver) this.observerList.get(i);
-            o.updateFromTCPManager(action, receiver, transmitter, ip);
+            o.updateFromTCPManager(action, receiveRunnable, transmitRunnable, ip);
         }
     }
 }

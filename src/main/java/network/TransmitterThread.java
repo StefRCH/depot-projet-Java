@@ -34,17 +34,25 @@ public class TransmitterThread implements ConversationObserver,Runnable {
         try {
             PrintStream flux = new PrintStream(sock.getOutputStream(), true); //J'isole le flux de comm en sortie (celui que l'on envoie)
             while (!quit) { //Tant que le client n'a pas demandé à quitter
-                String message = this.message; //Read user input
+
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(400);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                String message = this.message; //Read user input
                 if(this.send) {
                     System.out.println("test3");
+                    System.out.println(message);
+                    System.out.println(this.message);
 
+                    if(message == null || message.equals("")) {
+                        this.send = false;
+                        System.out.println(message+"fail");
+                        continue;
+                    }
 
-                    if(message == "/quit"){
+                    if(message.equals("/quit")){
                         sock.close();
                         quit = true;
                     }
@@ -52,6 +60,7 @@ public class TransmitterThread implements ConversationObserver,Runnable {
                         System.out.println(sock.getInetAddress());
 
                         flux.println(message); //Envoi du message
+                        flux.flush();
                         System.out.println("addresse IP qui émet :"+sock.getInetAddress().toString());
                     }
                     this.send=false;
@@ -72,6 +81,8 @@ public class TransmitterThread implements ConversationObserver,Runnable {
             this.message=message.getPayload(); //On definit le message
             this.send=true; //On passe la variable a true pour la boucle
             System.out.println("test");
+            System.out.println(message.getPayload());
+            System.out.println(this.message);
         }
     }
 }

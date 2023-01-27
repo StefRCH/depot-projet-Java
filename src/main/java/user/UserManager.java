@@ -54,6 +54,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
             }
             else if (data[0].equals("d")) { //Réception d'un message de déconnexion de la part d'un autre utilisateur
                 System.out.println(this.deleteUser(data[1], ipAddress)); //On le supprime donc de la liste
+                this.notifyObserver("deconnexionUser", pseudo, "");
 
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo

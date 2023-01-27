@@ -7,7 +7,7 @@ public interface TCPObserver {
 
     public void updateFromTCP(String action, String ip, Message message);
 
-    public void updateFromTCPManager(String action, Thread receiver, Thread transmit, InetAddress ip);
+    public void updateFromTCPManager(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip);
 
 
 }

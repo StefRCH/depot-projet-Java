@@ -85,6 +85,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     public void logout(ActionEvent actionEvent) { //Handler qui se lance quand on clique sur le bouton de deconnexion
 
         //Notification a UserManager de la deconnexion
+        this.notifyObserver("deconnexionConv", "", null);
         this.notifyObserver("deconnexion", "", null);
 
     }
@@ -155,6 +156,8 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         messagePane.setLayoutY(10);
         messagePane.setMinWidth(960);
         messagePane.setMinHeight(580);
+        messagePane.setMaxWidth(960);
+        messagePane.setMaxHeight(580);
         messagePane.setId(pseudo+"ConvPane");
 
         VBox layoutMessage = new VBox();
@@ -175,9 +178,9 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         HBox hBox=new HBox();
         hBox.getChildren().add(graphicMessage);
         hBox.setAlignment(Pos.BASELINE_LEFT);
-        if(this.convPane.lookup(pseudo+"ConvPane") != null) {
+        if(this.convPane.lookup("#"+pseudo+"ConvPane") != null) {
 
-            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup(pseudo+"ConvPane");
+            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+pseudo+"ConvPane");
             VBox messagePane = (VBox) actualMessageScrollPane.getContent();
 
             Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
@@ -223,10 +226,6 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             });
         }
 
-        {
-
-            //Faire une notif
-        }
     }
 
     private AnchorPane createGraphicMessage(Message message) {
@@ -240,12 +239,15 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     public void sendMessage(KeyEvent keyEvent) {
         if(keyEvent.getCode().equals(KeyCode.ENTER))
         {
-            Date date = new Date();
-            Message message = new Message(this.inputTextField.getText(), date);
-            this.inputTextField.clear();
-            this.showSendingMessage(message);
-            System.out.println("dans le sendMessage GUI");
-            this.notifyObserver("sendMessage", this.actualPseudoConv, message);
+            if(this.inputTextField.getText() != null && !this.inputTextField.equals("")) {
+                Date date = new Date();
+                Message message = new Message(this.inputTextField.getText(), date);
+                this.inputTextField.clear();
+                System.out.println("dans le sendMessage GUI");
+                System.out.println(message.getPayload());
+                this.showSendingMessage(message);
+                this.notifyObserver("sendMessage", this.actualPseudoConv, message);
+            }
         }
     }
 
@@ -259,12 +261,39 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
                 VBox messagePane = (VBox) actualMessageScrollPane.getContent();
                 HBox hBox=new HBox();
                 hBox.getChildren().add(graphicMessage);
-                hBox.setAlignment(Pos.BASELINE_LEFT);
+                hBox.setAlignment(Pos.BASELINE_RIGHT);
                 messagePane.getChildren().add(hBox);
                 messagePane.setSpacing(10);
 
             }
         });
+    }
+    private void deconnexionUser(String pseudo) { //Gere la deconnexion d'une personne
+
+        if(this.convPane.lookup("#"+pseudo+"ConvPane") != null) {
+
+            ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+pseudo+"ConvPane");
+
+            Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+                @Override
+                public void run() {
+
+                    convPane.getChildren().remove(actualMessageScrollPane);
+                    convPaneList.remove(actualMessageScrollPane);
+                }
+            });
+            return;
+        } else {
+            for(ScrollPane conv : convPaneList) {
+                if (conv.getId().equals(pseudo + "ConvPane")) {
+                    ScrollPane scrollPaneToRemove = conv;
+                    this.convPaneList.remove(conv);
+                    break;
+
+                }
+            }
+        }
+        this.notifyObserver("deconnexionUser", pseudo, null);
     }
 
 
@@ -483,12 +512,15 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             removeUser(pseudo); //Si l'observable (UserManager) notify avec remove, alors je supprime un utilisateur graphique
         } else if (action.equals("changePseudo")) {
             this.changePseudo(pseudo, oldPseudo);
-        } else if(action == "wrongPseudo") {
+        } else if(action.equals("wrongPseudo")) {
             this.pseudoCheck = false;
-        } else if(action == "goodPseudo") {
+        } else if(action.equals("goodPseudo")) {
             this.pseudoCheck = true;
+        } else if(action.equals("deconnexionUser")) {
+            this.deconnexionUser(pseudo);
         }
     }
+
 
     @Override
     public void updateFromConv(String action, String pseudo, Message message) {
