@@ -58,7 +58,6 @@ public class ConversationManager implements ConversationObservable, GraphicObser
 
 
         for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
-            System.out.println(conv.getUser().getPseudo());
             if(conv.getUser().getIpAddress().toString().substring(1).equals(ip)) {
                 ArrayList listDesMessages = conv.getMessageList();
                 if(listDesMessages.size() != 0) {
@@ -76,9 +75,7 @@ public class ConversationManager implements ConversationObservable, GraphicObser
 
     }
     public void sendMessage(String pseudo, Message message) {
-        System.out.println(pseudo);
         for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
-            System.out.println(conv.getUser().getPseudo());
             if(conv.getUser().getPseudo().equals(pseudo)) {
                 conv.addMessage(message); //On ajoute le message a la conversation
                 this.notifyObserver("sendMessage",conv.getUser().getIpAddress().toString(),message); //On notifie le thread emetteur, on lui envoi l ip et non pas le pseudo car il a l'IP
@@ -157,17 +154,10 @@ public class ConversationManager implements ConversationObservable, GraphicObser
         if (action.equals("initiateConv")) {
             this.sendTCP(pseudo);
         } else if (action.equals("sendMessage")) {
-            System.out.println("dans le updateFromGui");
+
             this.sendMessage(pseudo, message);
         } else if (action.equals("deconnexionConv")) { //Si l'observable (MainSceneController) notify avec deconnexion, alors j'envoie un udp de deconnexion
-            /*for (Conversation conversation : conversationList) {
-                try {
-                    conversation.getTransmitterThread().interrupt();
-                    conversation.getReceiverThread().interrupt();
-                } catch (Exception e) {
-                    System.out.println("Intteruption thread");
-                }
-            }*/
+
         } else if (action.equals("deconnexionUser")) {
             this.deconnexionUser(pseudo);
         }
@@ -178,8 +168,6 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     @Override
     public void updateFromTCP(String action, String ip, Message message) {
         if(action.equals("newMessage")) {
-            System.out.println("je suis dans updatefromTCP");
-
             this.messageReceived(ip, message);
         }
     }

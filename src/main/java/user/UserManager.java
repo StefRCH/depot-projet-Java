@@ -46,30 +46,22 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
             {
                 //On vérifie que cette personne a choisi un pseudo unique en se basant sur notre liste
                 if(this.checkUser(pseudo, ipAddress)){ //checkUser enverra un message "w" si le pseudo est déjà utilisé et n'ira pas plus loin dans le if
-                    System.out.println(this.createUser(pseudo, ipAddress));
-                    System.out.println(pseudo);
                     this.sendUDPNotification(ipAddress.toString()); // message pour notifier le nouvel utilisateur de notre présence afin qu'il nous ajoute à sa liste d'utilisateurs
 
                 }
             }
             else if (data[0].equals("d")) { //Réception d'un message de déconnexion de la part d'un autre utilisateur
-                System.out.println(this.deleteUser(data[1], ipAddress)); //On le supprime donc de la liste
                 this.notifyObserver("deconnexionUser", pseudo, "");
 
             }
             else if (data[0].equals("m")) { //On reçoit un paquet de quelqu'un souhaitant changer de pseudo
                 if(data[2].equals(this.users.get(0).getIpAddress())){ //Pour ne pas recevoir notre propre message
-                    System.out.println("test");
                     continue;
                 }
                 else{
-                    System.out.println("test1");
                     if(this.checkUser(data[1], ipAddress)) { //On vérifie qu'il n'y a pas d'autres personnes possèdant ce pseudo
-                        System.out.println("test2");
                         for (User n : users) {  //Si c'est le cas, on parcourt la liste des users dans notre liste
-                            System.out.println("test3");
-                            System.out.println(n.getIpAddress());
-                            System.out.println(data[2]);
+
                             if (data[2].equals(n.getIpAddress().toString().substring(1))) { //On retrouve l'utilisateur souhaitant changer de pseudo grâce à son @IP
                                 System.out.println("test4");
                                 String oldPseudo = n.getPseudo(); //On recupere l ancien pseudo pour le retrouver graphiquement
