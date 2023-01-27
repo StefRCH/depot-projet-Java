@@ -106,9 +106,6 @@
                                  </image>
                               </ImageView>
                               <Label id="userPseudo" fx:id="userPseudo" layoutX="76.0" layoutY="20.0" prefHeight="33.0" prefWidth="120.0" text="Moi">
-                                 <font>
-                                    <Font name="DejaVu Serif Bold" size="26.0" />
-                                 </font>
                               </Label>
                            </children>
                         </AnchorPane>

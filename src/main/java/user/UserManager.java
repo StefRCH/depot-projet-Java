@@ -30,7 +30,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
          this.observerList = new ArrayList();
 
     }
-    public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
+    synchronized public void update(List<String> dataList) throws IOException, CloneNotSupportedException {
 
         List<String> newData =  new ArrayList<String>(dataList);
         //this.udpThread.clearData(); //Remise à 0 de la liste.
@@ -296,7 +296,7 @@ public class UserManager implements UserObservable, GraphicObserver, UDPObserver
     }
 
     @Override
-    public void updateFromUDP(String action, List<String> data) {
+    synchronized public void updateFromUDP(String action, List<String> data) {
         if(action.equals("newData")) {
             try {
                 this.update(data);

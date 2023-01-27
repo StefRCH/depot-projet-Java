@@ -55,17 +55,24 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     }
 
     public void messageReceived(String ip, Message message) {
-        for(User user : users)
-        {
-            System.out.println("je suis dans messagereceived conv");
-            if(user.getIpAddress().toString().substring(1).equals(ip)) {//On cherche la correspondance des ip avec les users connectés pour savoir de qui vient le message
-                System.out.println("je suis dans messagereceived conv 2");
 
-                this.notifyObserver("newMessage", user.getPseudo(), message);
+
+        for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
+            System.out.println(conv.getUser().getPseudo());
+            if(conv.getUser().getIpAddress().toString().substring(1).equals(ip)) {
+                ArrayList listDesMessages = conv.getMessageList();
+                if(listDesMessages.size() != 0) {
+                    Message denierMessage = (Message) listDesMessages.get(listDesMessages.size() - 1);
+                    if(denierMessage.getPayload().equals(message.getPayload()) && denierMessage.getDate().equals(message.getDate())) //Evite de recevoir deux fois le meme message
+                        break;
+                }
+
+
+
+                conv.addMessage(message); //On ajoute le message a la conversation
+                this.notifyObserver("newMessage", conv.getUser().getPseudo(), message);
             }
-
         }
-
 
     }
     public void sendMessage(String pseudo, Message message) {
@@ -73,7 +80,6 @@ public class ConversationManager implements ConversationObservable, GraphicObser
         for(Conversation conv : conversationList) { //On parcours les conversations pour retrouver laquelle est la bonne
             System.out.println(conv.getUser().getPseudo());
             if(conv.getUser().getPseudo().equals(pseudo)) {
-
                 conv.addMessage(message); //On ajoute le message a la conversation
                 this.notifyObserver("sendMessage",conv.getUser().getIpAddress().toString(),message); //On notifie le thread emetteur, on lui envoi l ip et non pas le pseudo car il a l'IP
             }
@@ -179,8 +185,7 @@ public class ConversationManager implements ConversationObservable, GraphicObser
     }
 
     @Override
-    public void updateFromTCPManager(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) {
-        System.out.println("Dans updatefromtcpmanager");
+    synchronized public void updateFromTCPManager(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) {
         for (User n : users) {
             if (n.getIpAddress().equals(ip)) {
                 this.addObserver(transmitRunnable);
@@ -192,13 +197,10 @@ public class ConversationManager implements ConversationObservable, GraphicObser
                 receive.start(); //On lance le Thread (--> run() dans ReceiverThread
 
 
-                System.out.println("Dans updatefromtcpmanager2");
 
                 Conversation conv = new Conversation(receive, transmit, n);
                 this.conversationList.add(conv);
 
-
-                System.out.println("SUCCESS ---- Connexion établie");
                 this.notifyObserver("newConv", n.getPseudo(), null );
             }
         }

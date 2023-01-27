@@ -111,11 +111,11 @@ public class LaunchGUI extends Application implements EventHandler<ActionEvent> 
 
         //Affichage de notre pseudo en haut à gauche
         Label pseudoField = (Label) root.lookup("#userPseudo");
-        pseudoField.setText(pseudo);
+        pseudoField.setText(pseudo+" (moi)");
 
         //Recuperation de notre classe de controller
         mainSceneController = loader.getController();
-
+        mainSceneController.initVariable();
         //Mise en place des observer
         mainSceneController.addObserver(userManager);
         userManager.addObserver(mainSceneController);

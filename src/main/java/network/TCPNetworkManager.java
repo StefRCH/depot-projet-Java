@@ -43,7 +43,6 @@ public class TCPNetworkManager extends Thread implements TCPObservable {
             try {
                 Socket service = s.accept(); //Le serveur se met en écoute, dans l'attente d'une requête client
                 System.out.println("Client connecté : " + s); //Service est le socket (tuyau de communication) vers le client qui vient de se connecter
-                App.x = 1; // Pour bloquer le scanner de la classe App durant l'échange
 
                 //Création du thread permettant d'envoyer des messages
                 TransmitterThread transmitRunnable = new TransmitterThread(service);
@@ -80,7 +79,7 @@ public class TCPNetworkManager extends Thread implements TCPObservable {
     }
 
     @Override
-    public void notifyObserverConv(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) { //Permet de notfier les observers
+     public void notifyObserverConv(String action, ReceiverThread receiveRunnable, TransmitterThread transmitRunnable, InetAddress ip) { //Permet de notfier les observers
         for (int i = 0; i < this.observerList.size(); i++) {
             TCPObserver o = (TCPObserver) this.observerList.get(i);
             o.updateFromTCPManager(action, receiveRunnable, transmitRunnable, ip);

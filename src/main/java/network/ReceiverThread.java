@@ -63,9 +63,12 @@ public class ReceiverThread extends Thread implements TCPObservable {
     private Socket sock;
     private ArrayList observerList;
 
+    private String oldMessage;
+
     public ReceiverThread(Socket sock) {
         this.sock = sock;
         this.observerList = new ArrayList<>();
+        this.oldMessage = "";
     }
 
     public void run() {
@@ -84,7 +87,9 @@ public class ReceiverThread extends Thread implements TCPObservable {
                 String newMessage = requete.readLine(); // Attente d'un message en entrée | ATTENTION --> readline() est bloquant
                 if(newMessage == null || newMessage.equals(""))
                     continue;
+
                 //Formatage du message afin d'afficher la date de réception de celui-ci
+                this.oldMessage = newMessage;
                 SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
                 System.out.println("adresse IP qui a émi : "+sock.getInetAddress().toString());

@@ -54,15 +54,26 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     private ArrayList<ScrollPane> convPaneList;
 
-    public void addUser(String pseudo) { //Méthode permettant d'ajouter un User de manière graphique
 
-        //Recuperation du root et initialisation de l'userPane et du convPane (A CHANGER DE PLACE SINON APPLI CRASH QUAND ON EST SEUL CONNECTE)
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) { //Methode qui se lance a l'initialisation de la scene
+        this.observerList = new ArrayList(); //Creation de la list d'observer
+
+
+    }
+    public void initVariable() {
         this.pseudoCheck = true;
         this.parent = LaunchGUI.getRoot();
         this.userPane = (VBox) this.parent.lookup("#userPane");
         this.convPane = (AnchorPane) this.parent.lookup("#convPane");
         this.inputTextField = (TextField) this.parent.lookup("#inputTextField"); //Zone ou on ecrit
         this.convPaneList = new ArrayList<ScrollPane>();
+    }
+
+    public void addUser(String pseudo) { //Méthode permettant d'ajouter un User de manière graphique
+
+        //Recuperation du root et initialisation de l'userPane et du convPane (A CHANGER DE PLACE SINON APPLI CRASH QUAND ON EST SEUL CONNECTE)
+
 
 
         //Creation d'un userInfoPane grapique
@@ -79,12 +90,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) { //Methode qui se lance a l'initialisation de la scene
-        this.observerList = new ArrayList(); //Creation de la list d'observer
 
-
-    }
 
     public void logout(ActionEvent actionEvent) { //Handler qui se lance quand on clique sur le bouton de deconnexion
 
@@ -107,7 +113,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
-    public void initiateConversation(MouseEvent mouseEvent) { //Methode qui permet d'initier une connexion TCP quand on clique sur quelqu'un
+    synchronized public void initiateConversation(MouseEvent mouseEvent) { //Methode qui permet d'initier une connexion TCP quand on clique sur quelqu'un
 
 
         //On recupere le pseudo de celui sur qui on a cliqué
@@ -119,14 +125,23 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             System.out.println(convIndex.getId());
 
             if(convIndex.getId().equals(pseudo+"ConvPane")) {
+
                 Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX
                     @Override
                     public void run() {
+
+
                         try {
+
+                            Label compteur = (Label) parent.lookup("#"+pseudo+"CompteurLabel"); //On remet a 0 le compteur
+                            compteur.setText(""); //On remet a 0 le compteur
+
                             convPane.getChildren().remove(5); //On enleve le pane de discussion actuel
                             convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
-                        } catch (IndexOutOfBoundsException e)
-                        {
+                        } catch (IndexOutOfBoundsException e) {
+                            Label compteur = (Label) parent.lookup("#"+pseudo+"CompteurLabel"); //On remet a 0 le compteur
+                            compteur.setText("");
+
                             convPane.getChildren().add(convIndex); //On ajoute celui sur lequel il a cliqué
 
                         }
@@ -178,7 +193,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
     public void messageReceived(String pseudo, Message message) {
-        AnchorPane graphicMessage = this.createGraphicMessage(message);
+        AnchorPane graphicMessage = this.createGraphicMessage(message, "receive");
         HBox hBox=new HBox();
         hBox.getChildren().add(graphicMessage);
         hBox.setAlignment(Pos.BASELINE_LEFT);
@@ -198,8 +213,23 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
             });
             return;
         } else {
+            Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
+                @Override
+                public void run() {
 
-           for(ScrollPane conv : convPaneList) {
+                    Label compteur = (Label) parent.lookup("#"+pseudo+"CompteurLabel"); //On augmente le compteur
+                    if(!compteur.getText().equals("")) {
+                        int nombreCompteur = Integer.parseInt(compteur.getText());
+                        nombreCompteur += 1;
+                        compteur.setText(Integer.toString(nombreCompteur));
+                    } else {
+                        compteur.setText("1");
+                    }
+
+                }
+            });
+
+            for(ScrollPane conv : convPaneList) {
                System.out.println(conv.getId());
                if(conv.getId().equals(pseudo+"ConvPane")) {
                    VBox messagePane = (VBox) conv.getContent();
@@ -232,9 +262,13 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
     }
 
-    private AnchorPane createGraphicMessage(Message message) {
+    private AnchorPane createGraphicMessage(Message message, String info) {
         Label graphicMessage = new Label();
-        graphicMessage.setText(message.getDate() + "\n" + message.getPayload());
+        if(info.equals("send"))
+            graphicMessage.setText(message.getDate() + " : Sent" + "\n" + message.getPayload());
+        else if(info.equals("receive"))
+            graphicMessage.setText(message.getDate() + " : Received"+"\n" + message.getPayload());
+
         AnchorPane messagePane = new AnchorPane();
         messagePane.getChildren().add(graphicMessage);
         return messagePane;
@@ -256,7 +290,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
     private void showSendingMessage(Message message) {
-        AnchorPane graphicMessage = this.createGraphicMessage(message);
+        AnchorPane graphicMessage = this.createGraphicMessage(message, "send");
         graphicMessage.setLayoutX(400);
         ScrollPane actualMessageScrollPane = (ScrollPane) this.convPane.lookup("#"+this.actualPseudoConv+"ConvPane");
         Platform.runLater(new Runnable() { //Méthode pour pas interrompre le thread javaFX, on ajoute le message en dessous
@@ -378,7 +412,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
             //On modifie le pseudo en haut a gauche
             Label userPseudo = (Label) this.parent.lookup("#userPseudo");
-            userPseudo.setText(newPseudo);
+            userPseudo.setText(newPseudo + " (moi)");
 
             //On remet l'handler de base au bouton changePseuo
             changePseudoButton.setOnAction(this::changePseudo);
@@ -460,6 +494,15 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         pseudoLabel.setText(pseudo);
         pseudoLabel.setId(pseudo+"Label");
 
+        Label compteurLabel = new Label("");
+        compteurLabel.setLayoutX(190);
+        compteurLabel.setLayoutY(47);
+        compteurLabel.prefHeight(33);
+        compteurLabel.prefWidth(120);
+        compteurLabel.setId(pseudo+"CompteurLabel");
+
+
+
 
         //On charge l'avatar
         Image imageAvatar = new Image("/avatar.png");
@@ -474,6 +517,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
         //On imbrique les différent éléments dans l'anchorPane
         userInfo.getChildren().add(pseudoLabel);
         userInfo.getChildren().add(avatar);
+        userInfo.getChildren().add(compteurLabel);
 
         userInfo.setOnMouseClicked(this::initiateConversation);
 
@@ -497,7 +541,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     } //retire un observer
 
     @Override
-    public void notifyObserver(String action, String pseudo, Message message) { //Permet de notifier les observers, ici UserManager
+    synchronized public void notifyObserver(String action, String pseudo, Message message) { //Permet de notifier les observers, ici UserManager
         for (int i = 0; i < this.observerList.size(); i++) {
             GraphicObserver o = (GraphicObserver) observerList.get(i);
             try {
@@ -509,7 +553,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
     }
 
     @Override
-    public void updateFromUser(String action, String pseudo, String oldPseudo) {
+    synchronized public void updateFromUser(String action, String pseudo, String oldPseudo) {
         if(action.equals("add")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             addUser(pseudo);
         } else if (action.equals("remove")) {
@@ -527,7 +571,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
 
     @Override
-    public void updateFromConv(String action, String pseudo, Message message) {
+    synchronized public void updateFromConv(String action, String pseudo, Message message) {
         if(action.equals("newMessage")) { //Si l'observable (UserManager) notify avec add, alors j'ajoute un nouvel utilisateur graphique
             System.out.println("dans updatefromConv");
             this.messageReceived(pseudo, message);
@@ -540,6 +584,7 @@ public class MainSceneController implements Initializable,Cloneable, UserObserve
 
         }
     }
+
 
 
 }

@@ -75,7 +75,7 @@ public class TransmitterThread implements ConversationObserver,Runnable {
     }
 
     @Override
-    public void updateFromConv(String action, String pseudo, Message message) {
+     public void updateFromConv(String action, String pseudo, Message message) {
         System.out.println(sock.getInetAddress().toString());
         System.out.println(pseudo);
         if (action.equals("sendMessage") && sock.getInetAddress().toString().equals(pseudo)) //On verifie que l ip est la meme, si oui on envoi
